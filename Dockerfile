@@ -32,15 +32,16 @@ FROM base AS runner
 WORKDIR /app
 
 LABEL org.opencontainers.image.authors="8 Hobbies, LLC"
+LABEL org.opencontainers.image.licenses=AGPL-3.0-or-later
 
 ENV NODE_ENV=production
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nodejs
 
-COPY --chown=nodejs:nodejs package.json package-lock.json prisma ./
-RUN npm install -g npm && npm ci
+COPY package.json package-lock.json ./
 COPY --from=builder /app/dist/ ./
+RUN npm install -g npm && npm ci
 
 USER nodejs
 
