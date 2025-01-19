@@ -20,6 +20,12 @@ import Fastify from "fastify";
 import routeHealth from "./route_health.js";
 import routeNew from "./route_new.js";
 
+/* v8 ignore start */
+if (process.env.DATABASE_CONNECTION_STRING === undefined) {
+  throw new Error("DATABASE_CONNECTION_STRING is required");
+}
+/* v8 ignore end */
+
 const fastify = Fastify({
   logger: true,
   ignoreDuplicateSlashes: true,

@@ -23,6 +23,9 @@ on:
   pull_request:
     branches: ["master"]
 
+env:
+  DOCKER_CMD: docker
+
 jobs:
   test:
     name: Runtime

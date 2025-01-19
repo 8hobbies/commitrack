@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # @license AGPL-3.0-or-later
 #
 # Copyright(C) 2025 8 Hobbies, LLC
@@ -15,38 +17,13 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-FROM node:22.12.0-alpine as base
+set -x
 
-# Build the app -------------
-FROM base as builder
+DOCKER_CMD=${DOCKER_CMD:-podman}
 
-WORKDIR /app
-
-COPY package.json package-lock.json ./
-RUN npm install -g npm && npm ci
-COPY . .
-RUN npm install -g npm && npm run build && rm dist/*.tsbuildinfo
-
-# Production image --------------
-FROM base AS runner
-WORKDIR /app
-
-LABEL org.opencontainers.image.authors="8 Hobbies, LLC"
-
-ENV NODE_ENV=production
-
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nodejs
-
-COPY --chown=nodejs:nodejs package.json package-lock.json prisma ./
-RUN npm install -g npm && npm ci
-COPY --from=builder /app/dist/ ./
-
-USER nodejs
-
-EXPOSE 3000
-
-ENV PORT=3000
-ENV HOSTNAME="::"
-
-CMD ["node", "index.js"]
+${DOCKER_CMD} compose up -d db --detach || { echo "Failed to spin up the database container" ; exit 1; }
+./scripts/init_test_db.sh || { echo "Failed to initialize db" ; exit 1 ; }
+DATABASE_CONNECTION_STRING=postgresql://commitrack:commitrack@localhost:5432/commitrack npx vitest --run index.test.ts --coverage
+result=$?
+${DOCKER_CMD} compose down
+exit $result

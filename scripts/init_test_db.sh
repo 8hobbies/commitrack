@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # @license AGPL-3.0-or-later
 #
 # Copyright(C) 2025 8 Hobbies, LLC
@@ -15,38 +17,13 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-FROM node:22.12.0-alpine as base
+# Initialize database for test purposes
 
-# Build the app -------------
-FROM base as builder
+set -x
 
-WORKDIR /app
+DOCKER_CMD=${DOCKER_CMD:-podman}
+export DATABASE_CONNECTION_STRING=postgresql://commitrack:commitrack@localhost:5432/commitrack
 
-COPY package.json package-lock.json ./
-RUN npm install -g npm && npm ci
-COPY . .
-RUN npm install -g npm && npm run build && rm dist/*.tsbuildinfo
+timeout 10s bash -c "until ${DOCKER_CMD} exec commitrack_db pg_isready -U commitrack -d commitrack; do sleep 1; done" || { echo "Failed to wait for the database to up" ; exit 1; }
 
-# Production image --------------
-FROM base AS runner
-WORKDIR /app
-
-LABEL org.opencontainers.image.authors="8 Hobbies, LLC"
-
-ENV NODE_ENV=production
-
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nodejs
-
-COPY --chown=nodejs:nodejs package.json package-lock.json prisma ./
-RUN npm install -g npm && npm ci
-COPY --from=builder /app/dist/ ./
-
-USER nodejs
-
-EXPOSE 3000
-
-ENV PORT=3000
-ENV HOSTNAME="::"
-
-CMD ["node", "index.js"]
+npx prisma migrate dev || { echo "Failed to migrate" ; exit 1; }

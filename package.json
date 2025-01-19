@@ -13,8 +13,8 @@
     "build_container_img": "${DOCKER_CMD:-podman} build . -t commitrack-dev",
     "start_container": "${DOCKER_CMD:-podman} compose up --detach",
     "stop_container": "${DOCKER_CMD:-podman} compose down",
-    "test": "vitest --run index.test.ts --coverage",
-    "test_live": "vitest --run docker.test.ts",
+    "test": "./scripts/run_tests.sh",
+    "test_live": "./scripts/init_test_db.sh && vitest --run docker.test.ts",
     "format": "eslint --fix src/*.ts *.mjs && prettier . --write",
     "compile": "tsc -p tsconfig.prod.json && tsc -p tsconfig.test.json",
     "dev": "npm run build && node dist/index.js"
@@ -29,12 +29,14 @@
     "eslint": "^9.18.0",
     "globals": "^15.14.0",
     "prettier": "^3.4.2",
+    "prisma": "^6.2.1",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.20.0",
     "vitest": "^3.0.2"
   },
   "dependencies": {
     "@fastify/type-provider-json-schema-to-ts": "^5.0.0",
+    "@prisma/client": "^6.2.1",
     "fastify": "^5.2.1"
   }
 }
