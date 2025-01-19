@@ -37,6 +37,7 @@
   "dependencies": {
     "@fastify/type-provider-json-schema-to-ts": "^5.0.0",
     "@prisma/client": "^6.2.1",
-    "fastify": "^5.2.1"
+    "fastify": "^5.2.1",
+    "fastify-plugin": "^5.0.1"
   }
 }

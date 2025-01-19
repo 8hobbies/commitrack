@@ -17,6 +17,7 @@
  */
 
 import Fastify from "fastify";
+import prismaPlugin from "./plugin_prisma.js";
 import routeHealth from "./route_health.js";
 import routeNew from "./route_new.js";
 
@@ -32,6 +33,7 @@ const fastify = Fastify({
   ignoreTrailingSlash: true,
 });
 
+fastify.register(prismaPlugin);
 fastify.register(routeHealth);
 fastify.register(routeNew);
 

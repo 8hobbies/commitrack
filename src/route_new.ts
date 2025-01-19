@@ -17,9 +17,6 @@
  */
 
 import { FastifyPluginAsyncJsonSchemaToTs } from "@fastify/type-provider-json-schema-to-ts";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
 
 // eslint-disable-next-line @typescript-eslint/require-await
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async function (fastify, _) {
@@ -45,7 +42,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async function (fastify, _) {
     async (request, reply) => {
       const { repository, branch } = request.body;
       console.log(repository, branch);
-      await prisma.branches.create({
+      await fastify.prisma.branches.create({
         data: {
           repository,
           branch,
