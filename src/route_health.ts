@@ -16,33 +16,25 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import Fastify from "fastify";
-import routeHealth from "./route_health.js";
-import routeNew from "./route_new.js";
+import { FastifyPluginAsyncJsonSchemaToTs } from "@fastify/type-provider-json-schema-to-ts";
 
-const fastify = Fastify({
-  logger: true,
-  ignoreDuplicateSlashes: true,
-  ignoreTrailingSlash: true,
-});
-
-fastify.register(routeHealth);
-fastify.register(routeNew);
-
-// Run the server!
-const start = async (): Promise<void> => {
-  try {
-    await fastify.listen({
-      port: parseInt(process.env.PORT ?? "3000"),
-      host: process.env.HOSTNAME ?? "localhost",
-    });
-    /* v8 ignore start */
-  } catch (err) {
-    fastify.log.error(err);
-    process.exit(1);
-    /* v8 ignore end */
-  }
+// eslint-disable-next-line @typescript-eslint/require-await
+const plugin: FastifyPluginAsyncJsonSchemaToTs = async function (fastify, _) {
+  fastify.get(
+    "/health",
+    {
+      schema: {
+        response: {
+          204: {
+            type: "null",
+          },
+        },
+      },
+    } as const,
+    async (_, reply) => {
+      reply.code(204).send();
+    },
+  );
 };
-await start();
 
-export default fastify;
+export default plugin;

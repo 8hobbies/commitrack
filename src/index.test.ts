@@ -18,6 +18,16 @@
 
 import fastify from "./index.ts";
 
+describe("/health", () => {
+  test("Return 204", async () => {
+    const response = await fastify.inject({
+      method: "GET",
+      url: "/health",
+    });
+    expect(response.statusCode).toBe(204);
+  });
+});
+
 describe("/new", () => {
   const newFirstPathComp = "new" as const;
   for (const [name, payload] of [

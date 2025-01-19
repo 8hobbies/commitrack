@@ -19,6 +19,15 @@
 const instanceAddress = "http://localhost:3000" as const;
 
 describe("Brief test directly for a running Docker container", () => {
+  describe("/health", () => {
+    test("Return 204", async () => {
+      const response = await fetch(`${instanceAddress}/health`, {
+        method: "GET",
+      });
+
+      expect(response.status).toBe(204);
+    });
+  });
   describe("/new", () => {
     const newFirstPathComp = "new" as const;
     test("Return 400 with invalid payload", async () => {
