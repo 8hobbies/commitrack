@@ -1,0 +1,39 @@
+{
+  "name": "commitrack",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Commit Tracker",
+  "license": "AGPL-3.0-or-later",
+  "author": "8 Hobbies, LLC",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "lint": "eslint src/*.ts *.mjs && prettier . --check",
+    "build": "npm run compile",
+    "build_container_img": "podman build . -t app",
+    "start_container": "podman run -it --rm -p 3000:3000 app",
+    "test": "vitest --run index.test.ts --coverage",
+    "test_live": "vitest --run docker.test.ts",
+    "format": "eslint --fix src/*.ts *.mjs && prettier . --write",
+    "compile": "tsc -p tsconfig.prod.json && tsc -p tsconfig.test.json",
+    "dev": "npm run build && node dist/index.js"
+  },
+  "devDependencies": {
+    "@8hobbies/eslint-conf-baseline": "^6.0.0",
+    "@types/eslint": "^9.6.1",
+    "@types/eslint__js": "^8.42.3",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.10.7",
+    "@vitest/coverage-v8": "^3.0.2",
+    "eslint": "^9.18.0",
+    "globals": "^15.14.0",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.20.0",
+    "vitest": "^3.0.2"
+  },
+  "dependencies": {
+    "@fastify/type-provider-json-schema-to-ts": "^5.0.0",
+    "fastify": "^5.2.1"
+  }
+}

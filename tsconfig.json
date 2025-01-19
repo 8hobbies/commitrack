@@ -1,0 +1,10 @@
+// Only for better editor/IDE experience
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "allowImportingTsExtensions": true
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules", "dist/", "docs/"]
+}
