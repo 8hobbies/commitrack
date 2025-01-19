@@ -1,0 +1,48 @@
+# @license AGPL-3.0-or-later
+#
+# Copyright(C) 2025 8 Hobbies, LLC
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+---
+version: "3"
+services:
+  commitrack:
+    image: commitrack-dev
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://commitrack:commitrack@db:5432/commitrack
+    depends_on:
+      db:
+        condition: service_healthy
+    init: true
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "curl http://localhost:3000/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  db:
+    image: docker.io/postgres:17.2-alpine@sha256:0bcc5bbbb2aa9c9b4c6505845918c7eb55d783cf5c1f434fac33012579fb149d
+    environment:
+      POSTGRES_DB: commitrack
+      POSTGRES_USER: commitrack
+      POSTGRES_PASSWORD: commitrack
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5

@@ -10,8 +10,9 @@
   "scripts": {
     "lint": "eslint src/*.ts *.mjs && prettier . --check",
     "build": "npm run compile",
-    "build_container_img": "podman build . -t app",
-    "start_container": "podman run -it --rm -p 3000:3000 app",
+    "build_container_img": "${DOCKER_CMD:-podman} build . -t commitrack-dev",
+    "start_container": "${DOCKER_CMD:-podman} compose up --detach",
+    "stop_container": "${DOCKER_CMD:-podman} compose down",
     "test": "vitest --run index.test.ts --coverage",
     "test_live": "vitest --run docker.test.ts",
     "format": "eslint --fix src/*.ts *.mjs && prettier . --write",
