@@ -23,7 +23,4 @@ set -x
 
 DOCKER_CMD=${DOCKER_CMD:-podman}
 export DATABASE_CONNECTION_STRING=postgresql://commitrack:commitrack@localhost:5432/commitrack
-
-timeout 10s bash -c "until ${DOCKER_CMD} exec commitrack_db pg_isready -U commitrack -d commitrack; do sleep 1; done" || { echo "Failed to wait for the database to up" ; exit 1; }
-
 npx prisma migrate dev || { echo "Failed to migrate" ; exit 1; }

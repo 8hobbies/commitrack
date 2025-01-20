@@ -21,7 +21,13 @@ set -x
 
 DOCKER_CMD=${DOCKER_CMD:-podman}
 
-${DOCKER_CMD} compose up -d db --detach || { echo "Failed to spin up the database container" ; exit 1; }
+${DOCKER_CMD} build . -f Dockerfile.test-repos -t commitrack-test-repos
+${DOCKER_CMD} compose up db test-repos --detach || { echo "Failed to spin up the database container" ; exit 1; }
+
+timeout 10s bash -c "until ${DOCKER_CMD} exec commitrack-db pg_isready -U commitrack -d commitrack; do sleep 1; done" || { echo "Failed to wait for the database to go up" ; exit 1; }
+timeout 10s bash -c "until ${DOCKER_CMD} exec commitrack-test-repos git ls-remote git://localhost/repos/single-branch; do sleep 1; done" || { echo "Failed to wait for the test git repos to go up" ; exit 1; }
+
+
 ./scripts/init_test_db.sh || { echo "Failed to initialize db" ; exit 1 ; }
 DATABASE_CONNECTION_STRING=postgresql://commitrack:commitrack@localhost:5432/commitrack npx vitest --run index.test.ts --coverage
 result=$?

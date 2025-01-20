@@ -17,6 +17,7 @@
  */
 
 import { FastifyPluginAsyncJsonSchemaToTs } from "@fastify/type-provider-json-schema-to-ts";
+import { getRemoteGitCommit } from "./utils.js";
 
 // eslint-disable-next-line @typescript-eslint/require-await
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async function (fastify, _) {
@@ -36,12 +37,29 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async function (fastify, _) {
           204: {
             type: "null",
           },
+          400: {
+            type: "object",
+            properties: {
+              error: { type: "string" }, // Human-readable error
+              repository: { type: "string" }, // repository as in the request
+              branch: { type: "string" }, // branch as in the request
+            },
+            required: ["error"],
+          },
         },
       },
     } as const,
     async (request, reply) => {
       const { repository, branch } = request.body;
-      console.log(repository, branch);
+      if ((await getRemoteGitCommit(repository, branch)) == null) {
+        reply.code(400).send({
+          error: `Failed to obtain commit from the branch "${branch}" from the repository "${repository}".`,
+          repository,
+          branch,
+        });
+        return;
+      }
+
       await fastify.prisma.branches.create({
         data: {
           repository,
