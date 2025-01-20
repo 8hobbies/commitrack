@@ -82,11 +82,12 @@ describe("/new", () => {
       },
     });
 
-    expect(response.statusCode).toBe(400);
+    expect(response.statusCode).toBe(403);
     expect(JSON.parse(response.body)).toStrictEqual({
-      error: `Failed to obtain commit from the branch "${branch}" of the repository "${repository}".`,
-      repository,
-      branch,
+      error: {
+        message: `Failed to obtain commit from the branch "${branch}" of the repository "${repository}".`,
+        type: "commit",
+      },
     });
   });
 
@@ -112,11 +113,12 @@ describe("/new", () => {
     expect(first_response.statusCode).toBe(204); // First time suceeds.
 
     const response = await request();
-    expect(response.statusCode).toBe(400);
+    expect(response.statusCode).toBe(403);
     expect(JSON.parse(response.body)).toStrictEqual({
-      error: "Failed to add the branch. Likely it already exists.",
-      repository,
-      branch,
+      error: {
+        message: `Failed to add the "${branch}" of the repository "${repository}". Likely it already exists.`,
+        type: "creation",
+      },
     });
   });
 });

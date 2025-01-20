@@ -37,12 +37,22 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async function (fastify, _) {
           204: {
             type: "null",
           },
-          400: {
+          403: {
             type: "object",
             properties: {
-              error: { type: "string" }, // Human-readable error
-              repository: { type: "string" }, // repository as in the request
-              branch: { type: "string" }, // branch as in the request
+              error: {
+                type: "object",
+                properties: {
+                  message: { type: "string" }, // Human-readable error
+                  type: {
+                    type: "string",
+                    enum: [
+                      "commit", // fail to get commit
+                      "creation", // fail to create the db entry
+                    ],
+                  }, // Error code
+                },
+              },
             },
             required: ["error"],
           },
@@ -52,10 +62,11 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async function (fastify, _) {
     async (request, reply) => {
       const { repository, branch } = request.body;
       if ((await getRemoteGitCommit(repository, branch)) == null) {
-        reply.code(400).send({
-          error: `Failed to obtain commit from the branch "${branch}" of the repository "${repository}".`,
-          repository,
-          branch,
+        reply.code(403).send({
+          error: {
+            message: `Failed to obtain commit from the branch "${branch}" of the repository "${repository}".`,
+            type: "commit",
+          },
         });
         return;
       }
@@ -69,10 +80,11 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async function (fastify, _) {
         });
       } catch (error: unknown) {
         console.log({ error });
-        reply.code(400).send({
-          error: "Failed to add the branch. Likely it already exists.",
-          repository,
-          branch,
+        reply.code(403).send({
+          error: {
+            message: `Failed to add the "${branch}" of the repository "${repository}". Likely it already exists.`,
+            type: "creation",
+          },
         });
         return;
       }
