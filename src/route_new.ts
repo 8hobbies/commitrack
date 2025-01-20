@@ -21,7 +21,7 @@ import { getRemoteGitCommit } from "./utils.js";
 
 // eslint-disable-next-line @typescript-eslint/require-await
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async function (fastify, _) {
-  fastify.put(
+  fastify.post(
     "/new",
     {
       schema: {
@@ -53,19 +53,29 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async function (fastify, _) {
       const { repository, branch } = request.body;
       if ((await getRemoteGitCommit(repository, branch)) == null) {
         reply.code(400).send({
-          error: `Failed to obtain commit from the branch "${branch}" from the repository "${repository}".`,
+          error: `Failed to obtain commit from the branch "${branch}" of the repository "${repository}".`,
           repository,
           branch,
         });
         return;
       }
 
-      await fastify.prisma.branches.create({
-        data: {
+      try {
+        await fastify.prisma.branches.create({
+          data: {
+            repository,
+            branch,
+          },
+        });
+      } catch (error: unknown) {
+        console.log({ error });
+        reply.code(400).send({
+          error: "Failed to add the branch. Likely it already exists.",
           repository,
           branch,
-        },
-      });
+        });
+        return;
+      }
       reply.code(204).send();
     },
   );
