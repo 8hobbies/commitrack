@@ -39,7 +39,7 @@ describe("Brief test directly for a running Docker container", () => {
     const newFirstPathComp = "new" as const;
     test("Return 400 with invalid payload", async () => {
       const response = await fetch(`${instanceAddress}/${newFirstPathComp}`, {
-        method: "PUT",
+        method: "POST",
         headers: new Headers({ "content-type": "application/json" }),
         body: JSON.stringify({ branch: "master" }),
       });
@@ -49,7 +49,7 @@ describe("Brief test directly for a running Docker container", () => {
 
     test("Return 204 with valid payload and valid git repo, branch", async () => {
       const response = await fetch(`${instanceAddress}/${newFirstPathComp}`, {
-        method: "PUT",
+        method: "POST",
         headers: new Headers({ "content-type": "application/json" }),
         body: JSON.stringify({
           repository: "git://test-repos/repos/single-branch",
@@ -65,7 +65,7 @@ describe("Brief test directly for a running Docker container", () => {
       const repository = "git://localhost/non-existing" as const;
       const branch = "trunk" as const;
       const response = await fetch(`${instanceAddress}/${newFirstPathComp}`, {
-        method: "PUT",
+        method: "POST",
         headers: new Headers({ "content-type": "application/json" }),
         body: JSON.stringify({
           repository,
@@ -75,7 +75,7 @@ describe("Brief test directly for a running Docker container", () => {
 
       expect(response.status).toBe(400);
       expect(await response.json()).toStrictEqual({
-        error: `Failed to obtain commit from the branch "${branch}" from the repository "${repository}".`,
+        error: `Failed to obtain commit from the branch "${branch}" of the repository "${repository}".`,
         repository,
         branch,
       });

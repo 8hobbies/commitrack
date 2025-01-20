@@ -44,7 +44,7 @@ describe("/new", () => {
   ] as const) {
     test(`Return 400 with invalid payload: ${name}`, async () => {
       const response = await fastify.inject({
-        method: "PUT",
+        method: "POST",
         url: `/${newFirstPathComp}`,
         headers: { "content-type": "application/json" },
         body: payload,
@@ -56,7 +56,7 @@ describe("/new", () => {
 
   test("Return 204 with valid payload and valid git repo, branch", async () => {
     const response = await fastify.inject({
-      method: "PUT",
+      method: "POST",
       url: `/${newFirstPathComp}`,
       headers: { "content-type": "application/json" },
       body: {
@@ -73,7 +73,7 @@ describe("/new", () => {
     const repository = "git://localhost/non-existing" as const;
     const branch = "trunk" as const;
     const response = await fastify.inject({
-      method: "PUT",
+      method: "POST",
       url: `/${newFirstPathComp}`,
       headers: { "content-type": "application/json" },
       body: {
@@ -84,7 +84,37 @@ describe("/new", () => {
 
     expect(response.statusCode).toBe(400);
     expect(JSON.parse(response.body)).toStrictEqual({
-      error: `Failed to obtain commit from the branch "${branch}" from the repository "${repository}".`,
+      error: `Failed to obtain commit from the branch "${branch}" of the repository "${repository}".`,
+      repository,
+      branch,
+    });
+  });
+
+  test("Adding the same repository and branch twice returns 400", async () => {
+    const repository = "git://localhost/repos/single-branch" as const;
+    const branch = "trunk" as const;
+
+    // Make a new request.
+    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+    async function request() {
+      return await fastify.inject({
+        method: "POST",
+        url: `/${newFirstPathComp}`,
+        headers: { "content-type": "application/json" },
+        body: {
+          repository,
+          branch,
+        },
+      });
+    }
+
+    const first_response = await request();
+    expect(first_response.statusCode).toBe(204); // First time suceeds.
+
+    const response = await request();
+    expect(response.statusCode).toBe(400);
+    expect(JSON.parse(response.body)).toStrictEqual({
+      error: "Failed to add the branch. Likely it already exists.",
       repository,
       branch,
     });
