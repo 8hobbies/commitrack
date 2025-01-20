@@ -25,6 +25,8 @@ const execFile = promisify(child_process.execFile);
 
 const commit_id_length = 40 as const;
 const git_executable_path = process.env.GIT_EXECUTABLE_PATH ?? "/usr/bin/git";
+/** git command timeout in milliseconds. */
+const git_command_timeout = parseInt(process.env.GIT_COMMAND_TIMEOUT ?? "2000");
 
 /** Get remote git commit hash of a given branch of a given URL. */
 export async function getRemoteGitCommit(
@@ -34,12 +36,13 @@ export async function getRemoteGitCommit(
   try {
     // TODO: Sanitize branch
     // TODO: refuse http
-    const { stdout } = await execFile(git_executable_path, [
-      "ls-remote",
-      "--branches",
-      url,
-      branch,
-    ]);
+    const { stdout } = await execFile(
+      git_executable_path,
+      ["ls-remote", "--branches", url, branch],
+      {
+        timeout: git_command_timeout,
+      },
+    );
     const hash = stdout.trim().slice(0, commit_id_length);
     /* v8 ignore start */
     // TODO: Better check
