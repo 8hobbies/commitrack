@@ -54,15 +54,39 @@ describe("/new", () => {
     });
   }
 
-  test("Return 204 with valid payload", async () => {
+  test("Return 204 with valid payload and valid git repo, branch", async () => {
     const response = await fastify.inject({
       method: "PUT",
       url: `/${newFirstPathComp}`,
       headers: { "content-type": "application/json" },
-      body: { repository: "https://example/my/repo", branch: "master" },
+      body: {
+        repository: "git://localhost/repos/single-branch",
+        branch: "trunk",
+      },
     });
 
     expect(response.statusCode).toBe(204);
     expect(response.body).toBe("");
+  });
+
+  test("Return 400 with valid payload but invalid git repository", async () => {
+    const repository = "git://localhost/non-existing" as const;
+    const branch = "trunk" as const;
+    const response = await fastify.inject({
+      method: "PUT",
+      url: `/${newFirstPathComp}`,
+      headers: { "content-type": "application/json" },
+      body: {
+        repository,
+        branch,
+      },
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(JSON.parse(response.body)).toStrictEqual({
+      error: `Failed to obtain commit from the branch "${branch}" from the repository "${repository}".`,
+      repository,
+      branch,
+    });
   });
 });

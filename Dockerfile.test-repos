@@ -15,45 +15,29 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-FROM docker.io/node:22.13.0-alpine@sha256:f2dc6eea95f787e25f173ba9904c9d0647ab2506178c7b5b7c5a3d02bc4af145 as base
-
-# Build the app -------------
-FROM base as builder
-
-WORKDIR /app
-
-COPY package.json package-lock.json ./
-RUN npm install -g npm && npm ci
-COPY . .
-RUN npm install -g npm && npm run build && rm dist/*.tsbuildinfo
-
-# Production image --------------
-FROM base AS runner
-WORKDIR /app
-
-LABEL org.opencontainers.image.authors="8 Hobbies, LLC"
-LABEL org.opencontainers.image.licenses=AGPL-3.0-or-later
+FROM docker.io/alpine:3.21.2@sha256:56fa17d2a7e7f168a043a2712e63aed1f8543aeafdcee47c58dcffe38ed51099
 
 # Remove the community repository. This is to ensure that we only rely on
 # packages with future availability.
 RUN sed -i /community/d /etc/apk/repositories && cat /etc/apk/repositories
 
-RUN apk add --no-cache git
+RUN apk add --no-cache git git-daemon
 
-ENV NODE_ENV=production
+WORKDIR /srv/repos
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nodejs
+RUN git config --global user.email "you@example.com" && \
+    git config --global user.name "Your Name"
 
-COPY package.json package-lock.json ./
-COPY --from=builder /app/dist/ ./
-RUN npm install -g npm && npm ci
+RUN mkdir single-branch && cd single-branch && \
+    git init --initial-branch=trunk && \
+    touch README && git add README && git commit -m "Initial commit"
 
-USER nodejs
+RUN mkdir double-branch && cd double-branch && \
+    git init --initial-branch=default && \
+    touch README && git add README && git commit -m "Initial commit" && \
+    git checkout -b feature && \
+    echo "feature" >> README && git add README && git commit -m "feature"
 
-EXPOSE 3000
+EXPOSE 9418
 
-ENV PORT=3000
-ENV HOSTNAME="::"
-
-ENTRYPOINT ["node", "index.js"]
+ENTRYPOINT ["git", "daemon", "--export-all", "--reuseaddr", "--base-path=/srv/", "--informative-errors", "--verbose"]

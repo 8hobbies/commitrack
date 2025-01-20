@@ -47,18 +47,38 @@ describe("Brief test directly for a running Docker container", () => {
       expect(response.status).toBe(400);
     });
 
-    test("Return 204 with valid payload", async () => {
+    test("Return 204 with valid payload and valid git repo, branch", async () => {
       const response = await fetch(`${instanceAddress}/${newFirstPathComp}`, {
         method: "PUT",
         headers: new Headers({ "content-type": "application/json" }),
         body: JSON.stringify({
-          repository: "https://example.com/git/repo",
-          branch: "master",
+          repository: "git://test-repos/repos/single-branch",
+          branch: "trunk",
         }),
       });
 
       expect(response.status).toBe(204);
-      expect(response.body).toBe(null);
+      expect(await response.text()).toBe("");
+    });
+
+    test("Return 400 with valid payload but invalid git repository", async () => {
+      const repository = "git://localhost/non-existing" as const;
+      const branch = "trunk" as const;
+      const response = await fetch(`${instanceAddress}/${newFirstPathComp}`, {
+        method: "PUT",
+        headers: new Headers({ "content-type": "application/json" }),
+        body: JSON.stringify({
+          repository,
+          branch,
+        }),
+      });
+
+      expect(response.status).toBe(400);
+      expect(await response.json()).toStrictEqual({
+        error: `Failed to obtain commit from the branch "${branch}" from the repository "${repository}".`,
+        repository,
+        branch,
+      });
     });
   });
 });

@@ -10,15 +10,15 @@
   "scripts": {
     "lint": "eslint src/*.ts *.mjs && prettier . --check",
     "build": "npm run compile && cp -r prisma/schema.prisma dist/",
-    "build_container_img": "${DOCKER_CMD:-podman} build . -t commitrack-dev",
+    "build_container_img": "${DOCKER_CMD:-podman} build . -t commitrack-dev && ${DOCKER_CMD:-podman} build . -f Dockerfile.test-repos -t commitrack-test-repos",
     "start_container": "${DOCKER_CMD:-podman} compose up --detach",
-    "start_db": "${DOCKER_CMD:-podman} compose up -d db --detach",
+    "start_test_containers": "${DOCKER_CMD:-podman} compose up --detach db test-repos",
     "stop_container": "${DOCKER_CMD:-podman} compose down",
     "test": "./scripts/run_tests.sh",
     "test_live": "./scripts/init_test_db.sh && DATABASE_CONNECTION_STRING=postgresql://commitrack:commitrack@localhost:5432/commitrack vitest --run docker.test.ts",
     "format": "eslint --fix src/*.ts *.mjs && prettier . --write",
     "compile": "tsc -p tsconfig.prod.json && tsc -p tsconfig.test.json",
-    "dev": "npm run build && npm run start_db && ./scripts/init_test_db.sh && node dist/index.js"
+    "dev": "npm run build && npm run start_test_containers && ./scripts/init_test_db.sh && node dist/index.js"
   },
   "devDependencies": {
     "@8hobbies/eslint-conf-baseline": "^6.0.0",
