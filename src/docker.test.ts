@@ -73,11 +73,12 @@ describe("Brief test directly for a running Docker container", () => {
         }),
       });
 
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(403);
       expect(await response.json()).toStrictEqual({
-        error: `Failed to obtain commit from the branch "${branch}" of the repository "${repository}".`,
-        repository,
-        branch,
+        error: {
+          message: `Failed to obtain commit from the branch "${branch}" of the repository "${repository}".`,
+          type: "commit",
+        },
       });
     });
   });
