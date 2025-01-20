@@ -16,7 +16,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { PrismaClient } from "@prisma/client";
+
 const instanceAddress = "http://localhost:3000" as const;
+const prisma = new PrismaClient();
 
 describe("Brief test directly for a running Docker container", () => {
   describe("/health", () => {
@@ -29,6 +32,10 @@ describe("Brief test directly for a running Docker container", () => {
     });
   });
   describe("/new", () => {
+    beforeEach(async () => {
+      await prisma.$queryRaw`delete from branches`;
+    });
+
     const newFirstPathComp = "new" as const;
     test("Return 400 with invalid payload", async () => {
       const response = await fetch(`${instanceAddress}/${newFirstPathComp}`, {

@@ -16,7 +16,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { PrismaClient } from "@prisma/client";
 import fastify from "./index.ts";
+
+const prisma = new PrismaClient();
 
 describe("/health", () => {
   test("Return 204", async () => {
@@ -29,6 +32,10 @@ describe("/health", () => {
 });
 
 describe("/new", () => {
+  beforeEach(async () => {
+    await prisma.$queryRaw`delete from branches`;
+  });
+
   const newFirstPathComp = "new" as const;
   for (const [name, payload] of [
     ["empty", {}],
