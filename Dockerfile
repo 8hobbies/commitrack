@@ -22,10 +22,8 @@ FROM base as builder
 
 WORKDIR /app
 
-COPY package.json package-lock.json ./
-RUN npm install -g npm && npm ci
 COPY . .
-RUN npm install -g npm && npm run build && rm dist/*.tsbuildinfo
+RUN npm install -g npm && npm ci && npm run build && rm dist/*.tsbuildinfo
 
 # Production image --------------
 FROM base AS runner

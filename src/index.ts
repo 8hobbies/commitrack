@@ -19,6 +19,7 @@
 import Fastify from "fastify";
 import prismaPlugin from "./plugin_prisma.js";
 import routeHealth from "./route_health.js";
+import routeListCommits from "./route_list_commits.js";
 import routeNew from "./route_new.js";
 
 /* v8 ignore start */
@@ -35,6 +36,7 @@ const fastify = Fastify({
 
 fastify.register(prismaPlugin);
 fastify.register(routeHealth);
+fastify.register(routeListCommits);
 fastify.register(routeNew);
 
 // Run the server!

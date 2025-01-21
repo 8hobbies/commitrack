@@ -21,7 +21,15 @@ import { PrismaClient } from "@prisma/client";
 const instanceAddress = "http://localhost:3000" as const;
 const prisma = new PrismaClient();
 
+/** Clear all tables. */
+async function clearAllTables(): Promise<void> {
+  await prisma.$queryRaw`delete from commits`;
+  await prisma.$queryRaw`delete from branches`;
+}
+
 describe("Brief test directly for a running Docker container", () => {
+  const newFirstPathComp = "new" as const;
+
   describe("/health", () => {
     test("Return 200", async () => {
       const response = await fetch(`${instanceAddress}/health`, {
@@ -32,12 +40,8 @@ describe("Brief test directly for a running Docker container", () => {
     });
   });
   describe("/new", () => {
-    beforeEach(async () => {
-      await prisma.$queryRaw`delete from commits`;
-      await prisma.$queryRaw`delete from branches`;
-    });
+    beforeEach(clearAllTables);
 
-    const newFirstPathComp = "new" as const;
     test("Return 400 with invalid payload", async () => {
       const response = await fetch(`${instanceAddress}/${newFirstPathComp}`, {
         method: "POST",
@@ -80,6 +84,46 @@ describe("Brief test directly for a running Docker container", () => {
           message: `Failed to obtain commit from the branch "${branch}" of the repository "${repository}".`,
           type: "commit",
         },
+      });
+    });
+  });
+
+  describe("/list-commits", () => {
+    beforeEach(clearAllTables);
+
+    test("Can retrieve commits right after adding a new repository/branch", async () => {
+      const repository = "git://test-repos/repos/single-branch" as const;
+      const branch = "trunk" as const;
+
+      // Add a new repository and branch.
+      const newResponse = await fetch(
+        `${instanceAddress}/${newFirstPathComp}`,
+        {
+          method: "POST",
+          headers: new Headers({ "content-type": "application/json" }),
+          body: JSON.stringify({
+            repository,
+            branch,
+          }),
+        },
+      );
+      expect(newResponse.status).toBe(201); // sanity check
+
+      // List commits.
+      const response = await fetch(
+        `${instanceAddress}/list-commits/${encodeURIComponent(repository)}/${branch}?num_of_commits=1`,
+      );
+
+      expect(response.status).toBe(200);
+      expect(await response.json()).toMatchObject({
+        commits: [
+          {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            commit_hash: expect.any(String),
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            retrieval_time: expect.any(Number),
+          },
+        ],
       });
     });
   });

@@ -30,13 +30,16 @@ RUN git config --global user.email "you@example.com" && \
 
 RUN mkdir single-branch && cd single-branch && \
     git init --initial-branch=trunk && \
-    touch README && git add README && git commit -m "Initial commit"
+    touch README && git add README && \
+    GIT_COMMITTER_DATE="2025-01-18T00:00:00Z" git commit --date "2025-01-18T00:00:00Z" -m "Initial commit"
 
 RUN mkdir double-branch && cd double-branch && \
     git init --initial-branch=default && \
-    touch README && git add README && git commit -m "Initial commit" && \
+    touch README && git add README && \
+    GIT_COMMITTER_DATE="2025-01-19T11:11:11Z" git commit --date "2025-01-19T11:11:11Z" -m "Initial commit" && \
     git checkout -b feature && \
-    echo "feature" >> README && git add README && git commit -m "feature"
+    echo "feature" >> README && git add README && \
+    GIT_COMMITER_DATE="2025-01-20T22:22:22Z" git commit --date "2025-01-20T22:22:22Z" -m "feature"
 
 EXPOSE 9418
 
