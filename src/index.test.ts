@@ -33,6 +33,7 @@ describe("/health", () => {
 
 describe("/new", () => {
   beforeEach(async () => {
+    await prisma.$queryRaw`delete from commits`;
     await prisma.$queryRaw`delete from branches`;
   });
 

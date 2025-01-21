@@ -8,9 +8,19 @@ datasource db {
 }
 
 model branches {
-  id         Int    @id @default(autoincrement())
+  id         Int       @id @default(autoincrement())
   repository String
   branch     String
+  commits    commits[]
 
   @@unique([repository, branch])
+}
+
+model commits {
+  branch_id      Int
+  retrieved_time DateTime @db.Timestamp(0)
+  commit_hash    String
+  branches       branches @relation(fields: [branch_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_branches")
+
+  @@id([branch_id, retrieved_time])
 }
