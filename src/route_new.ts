@@ -34,7 +34,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async function (fastify, _) {
           required: ["repository", "branch"],
         },
         response: {
-          204: {
+          201: {
             type: "null",
           },
           403: {
@@ -97,7 +97,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async function (fastify, _) {
         });
         return;
       }
-      reply.code(204).send();
+      reply.code(201).send();
     },
   );
 };

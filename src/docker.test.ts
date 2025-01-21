@@ -23,12 +23,12 @@ const prisma = new PrismaClient();
 
 describe("Brief test directly for a running Docker container", () => {
   describe("/health", () => {
-    test("Return 204", async () => {
+    test("Return 200", async () => {
       const response = await fetch(`${instanceAddress}/health`, {
         method: "GET",
       });
 
-      expect(response.status).toBe(204);
+      expect(response.status).toBe(200);
     });
   });
   describe("/new", () => {
@@ -48,7 +48,7 @@ describe("Brief test directly for a running Docker container", () => {
       expect(response.status).toBe(400);
     });
 
-    test("Return 204 with valid payload and valid git repo, branch", async () => {
+    test("Return 201 with valid payload and valid git repo, branch", async () => {
       const response = await fetch(`${instanceAddress}/${newFirstPathComp}`, {
         method: "POST",
         headers: new Headers({ "content-type": "application/json" }),
@@ -58,7 +58,7 @@ describe("Brief test directly for a running Docker container", () => {
         }),
       });
 
-      expect(response.status).toBe(204);
+      expect(response.status).toBe(201);
       expect(await response.text()).toBe("");
     });
 
