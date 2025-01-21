@@ -81,7 +81,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async function (fastify, _) {
             last_commit_retrieval_time: retrievalTime,
             commits: {
               create: {
-                retrieved_time: retrievalTime,
+                retrieval_time: retrievalTime,
                 commit_hash: commitHash,
               },
             },
