@@ -1,5 +1,7 @@
 **/.git
-/Dockerfile
+*.test.ts
+Dockerfile
+Dockerfile.*
 /docker-compose.yml
 /*.tgz
 /dist
