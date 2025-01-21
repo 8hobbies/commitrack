@@ -22,12 +22,12 @@ import fastify from "./index.ts";
 const prisma = new PrismaClient();
 
 describe("/health", () => {
-  test("Return 204", async () => {
+  test("Return 200", async () => {
     const response = await fastify.inject({
       method: "GET",
       url: "/health",
     });
-    expect(response.statusCode).toBe(204);
+    expect(response.statusCode).toBe(200);
   });
 });
 
@@ -55,7 +55,7 @@ describe("/new", () => {
     });
   }
 
-  test("Return 204 with valid payload and valid git repo, branch", async () => {
+  test("Return 201 with valid payload and valid git repo, branch", async () => {
     const response = await fastify.inject({
       method: "POST",
       url: `/${newFirstPathComp}`,
@@ -66,7 +66,7 @@ describe("/new", () => {
       },
     });
 
-    expect(response.statusCode).toBe(204);
+    expect(response.statusCode).toBe(201);
     expect(response.body).toBe("");
   });
 
@@ -111,7 +111,7 @@ describe("/new", () => {
     }
 
     const first_response = await request();
-    expect(first_response.statusCode).toBe(204); // First time suceeds.
+    expect(first_response.statusCode).toBe(201); // First time suceeds.
 
     const response = await request();
     expect(response.statusCode).toBe(403);

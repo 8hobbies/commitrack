@@ -25,14 +25,14 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async function (fastify, _) {
     {
       schema: {
         response: {
-          204: {
+          200: {
             type: "null",
           },
         },
       },
     } as const,
     async (_, reply) => {
-      reply.code(204).send();
+      reply.code(200).send();
     },
   );
 };
