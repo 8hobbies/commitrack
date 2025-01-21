@@ -8,12 +8,14 @@ datasource db {
 }
 
 model branches {
-  id         Int       @id @default(autoincrement())
-  repository String
-  branch     String
-  commits    commits[]
+  id                         Int       @id @default(autoincrement())
+  repository                 String
+  branch                     String
+  last_commit_retrieval_time DateTime  @db.Timestamp(0)
+  commits                    commits[]
 
   @@unique([repository, branch])
+  @@index([last_commit_retrieval_time], map: "branches_last_commit_retrieval_time_index")
 }
 
 model commits {
