@@ -17,7 +17,7 @@
  */
 
 import { FastifyPluginAsyncJsonSchemaToTs } from "@fastify/type-provider-json-schema-to-ts";
-import { getRemoteGitCommit } from "./utils.js";
+import { getRemoteGitCommit } from "./common.js";
 
 // eslint-disable-next-line @typescript-eslint/require-await
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async function (fastify, _) {
@@ -61,7 +61,9 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async function (fastify, _) {
     } as const,
     async (request, reply) => {
       const { repository, branch } = request.body;
-      if ((await getRemoteGitCommit(repository, branch)) == null) {
+      const commitHash = await getRemoteGitCommit(repository, branch);
+      const retrievedTime = new Date();
+      if (commitHash == null) {
         reply.code(403).send({
           error: {
             message: `Failed to obtain commit from the branch "${branch}" of the repository "${repository}".`,
@@ -76,6 +78,12 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async function (fastify, _) {
           data: {
             repository,
             branch,
+            commits: {
+              create: {
+                retrieved_time: retrievedTime,
+                commit_hash: commitHash,
+              },
+            },
           },
         });
       } catch (error: unknown) {
