@@ -62,7 +62,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async function (fastify, _) {
     async (request, reply) => {
       const { repository, branch } = request.body;
       const commitHash = await getRemoteGitCommit(repository, branch);
-      const retrievedTime = new Date();
+      const retrievalTime = new Date();
       if (commitHash == null) {
         reply.code(403).send({
           error: {
@@ -78,9 +78,10 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async function (fastify, _) {
           data: {
             repository,
             branch,
+            last_commit_retrieval_time: retrievalTime,
             commits: {
               create: {
-                retrieved_time: retrievedTime,
+                retrieved_time: retrievalTime,
                 commit_hash: commitHash,
               },
             },
