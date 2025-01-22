@@ -197,6 +197,7 @@ describe("/list-commits", () => {
           retrieval_time: expectedRetrievalTime,
         },
       ],
+      last_commit_retrieval_time: expectedRetrievalTime,
     });
   });
 });

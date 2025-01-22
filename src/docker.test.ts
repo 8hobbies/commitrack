@@ -91,7 +91,7 @@ describe("Brief test directly for a running Docker container", () => {
   describe("/list-commits", () => {
     beforeEach(clearAllTables);
 
-    test("Can retrieve commits right after adding a new repository/branch", async () => {
+    test("Can retrieve commits and last retrieval time right after adding a new repository/branch", async () => {
       const repository = "git://test-repos/repos/single-branch" as const;
       const branch = "trunk" as const;
 
@@ -124,6 +124,8 @@ describe("Brief test directly for a running Docker container", () => {
             retrieval_time: expect.any(Number),
           },
         ],
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        last_commit_retrieval_time: expect.any(Number),
       });
     });
   });
