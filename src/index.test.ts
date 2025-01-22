@@ -134,7 +134,7 @@ describe("/new", () => {
 describe("/list-commits", () => {
   beforeEach(cleanUpTest);
 
-  test("Returns 403 if retrieving a non-existing repo/branch", async () => {
+  test("Returns 404 if retrieving a repo/branch that has not been tracked", async () => {
     const repository = "git://localhost/repos/single-branch" as const;
     const branch = "trunk" as const;
 
@@ -145,11 +145,10 @@ describe("/list-commits", () => {
       },
       url: `/list-commits/${encodeURIComponent(repository)}/${branch}`,
     });
-    expect(response.statusCode).toBe(403);
+    expect(response.statusCode).toBe(404);
     expect(JSON.parse(response.body)).toStrictEqual({
       error: {
         message: `Failed to get commits of the "${branch}" of the repository "${repository}".`,
-        type: "read",
       },
     });
   });
