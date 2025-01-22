@@ -1,4 +1,12 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["gitlab>8hobbies/renovate-config#v5"]
+  "extends": ["gitlab>8hobbies/renovate-config#v5"],
+  "packageRules": [
+    {
+      "description": "Loose versioning so that Renovate bumps the suffix",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["node"],
+      "versioning": "loose"
+    }
+  ]
 }
