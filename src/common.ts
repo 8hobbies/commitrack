@@ -38,7 +38,9 @@ export async function getRemoteGitCommit(
     // TODO: refuse http
     const { stdout } = await execFile(
       git_executable_path,
-      ["ls-remote", "--branches", url, branch],
+      // TODO: "--heads" is deprecated, but we are on an older version of git.
+      // Use "--branches" once we upgrade to trixie.
+      ["ls-remote", "--heads", url, branch],
       {
         timeout: git_command_timeout,
       },
@@ -53,7 +55,8 @@ export async function getRemoteGitCommit(
     /* v8 ignore end */
 
     return hash;
-  } catch (_: unknown) {
+  } catch (error: unknown) {
+    console.log({ error });
     // git failed
     return null;
   }
