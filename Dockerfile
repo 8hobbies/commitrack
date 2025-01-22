@@ -17,7 +17,7 @@
 
 
 # Build the app -------------
-FROM docker.io/node:22.13.1-alpine@sha256:9861e45b6bcfee6115070bacd7daa1f10179bd95675b683fdba0de8aaa8f4269 as builder
+FROM docker.io/node:22.13.1-alpine3.21@sha256:9861e45b6bcfee6115070bacd7daa1f10179bd95675b683fdba0de8aaa8f4269 as builder
 
 WORKDIR /app
 
