@@ -60,12 +60,14 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async function (fastify, _) {
                 items: {
                   type: "object",
                   properties: {
-                    commit_hash: { type: "string" },
-                    retrieval_time: { type: "integer" },
+                    commit_hash: { type: "string", maxLength: 40 },
+                    retrieval_time: { type: "integer", minimum: 1 },
                   },
                   required: ["commit_hash", "retrieval_time"],
                 },
               },
+              // The last time commits were retrieved for this repo/branch
+              last_commit_retrieval_time: { type: "integer", minimum: 1 },
             },
           },
           404: {
@@ -87,7 +89,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async function (fastify, _) {
       const { repository, branch } = request.params;
       const { num_of_commits } = request.query;
 
-      const commits = await fastify.prisma.branches.findFirst({
+      const queryResult = await fastify.prisma.branches.findFirst({
         where: {
           repository,
           branch,
@@ -106,7 +108,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async function (fastify, _) {
         },
       });
 
-      if (commits == null) {
+      if (queryResult == null) {
         reply.code(404).send({
           error: {
             message: `Failed to get commits of the "${branch}" of the repository "${repository}".`,
@@ -116,10 +118,11 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async function (fastify, _) {
       }
 
       reply.code(200).send({
-        commits: commits.commits.map((commit) => ({
+        commits: queryResult.commits.map((commit) => ({
           ...commit,
           retrieval_time: commit.retrieval_time.getTime(),
         })),
+        last_commit_retrieval_time: queryResult.last_commit_retrieval_time,
       });
     },
   );
