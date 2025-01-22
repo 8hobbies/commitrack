@@ -68,17 +68,13 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async function (fastify, _) {
               },
             },
           },
-          403: {
+          404: {
             type: "object",
             properties: {
               error: {
                 type: "object",
                 properties: {
                   message: { type: "string" }, // Human-readable error
-                  type: {
-                    type: "string",
-                    enum: ["read"],
-                  }, // Error code
                 },
               },
             },
@@ -111,10 +107,9 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async function (fastify, _) {
       });
 
       if (commits == null) {
-        reply.code(403).send({
+        reply.code(404).send({
           error: {
             message: `Failed to get commits of the "${branch}" of the repository "${repository}".`,
-            type: "read",
           },
         });
         return;
