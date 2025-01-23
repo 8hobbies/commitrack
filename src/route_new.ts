@@ -17,9 +17,10 @@
  */
 
 import {
+  branchMaxLength,
   branchNamePattern,
-  commonMaxLength,
   getRemoteGitCommit,
+  repoUrlMaxLength,
 } from "./common.js";
 import { FastifyPluginAsyncJsonSchemaToTs } from "@fastify/type-provider-json-schema-to-ts";
 
@@ -35,13 +36,13 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async function (fastify, _) {
             repository: {
               type: "string",
               minLength: 1,
-              maxLength: commonMaxLength,
+              maxLength: repoUrlMaxLength,
             },
             branch: {
               type: "string",
               pattern: branchNamePattern,
               minLength: 1,
-              maxLength: commonMaxLength,
+              maxLength: branchMaxLength,
             },
           },
           required: ["repository", "branch"],

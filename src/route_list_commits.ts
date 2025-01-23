@@ -16,7 +16,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { branchNamePattern, commonMaxLength } from "./common.js";
+import {
+  branchMaxLength,
+  branchNamePattern,
+  repoUrlMaxLength,
+} from "./common.js";
 import { FastifyPluginAsyncJsonSchemaToTs } from "@fastify/type-provider-json-schema-to-ts";
 
 interface QueryStringSchemaInterface {
@@ -50,13 +54,13 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async function (fastify, _) {
             repository: {
               type: "string",
               minLength: 1,
-              maxLength: commonMaxLength,
+              maxLength: repoUrlMaxLength,
             },
             branch: {
               type: "string",
               pattern: branchNamePattern,
               minLength: 1,
-              maxLength: commonMaxLength,
+              maxLength: branchMaxLength,
             },
           },
           required: ["repository", "branch"],

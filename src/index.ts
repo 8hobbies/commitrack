@@ -32,6 +32,7 @@ const fastify = Fastify({
   logger: true,
   ignoreDuplicateSlashes: true,
   ignoreTrailingSlash: true,
+  maxParamLength: 2048,
 });
 
 fastify.register(prismaPlugin);
