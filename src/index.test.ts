@@ -49,6 +49,18 @@ describe("/new", () => {
     ["empty", {}],
     ["missing repository", { branch: "master" }],
     ["missing branch", { repository: "https://example/my/repo" }],
+    [
+      "branch name containing *",
+      { repository: "https://example/my/repo", branch: "mas*ter" },
+    ],
+    [
+      "branch name containing [",
+      { repository: "https://example/my/repo", branch: "ma[ster" },
+    ],
+    [
+      "branch name containing ?",
+      { repository: "https://example/my/repo", branch: "m?aster" },
+    ],
   ] as const) {
     test(`Return 400 with invalid payload: ${name}`, async () => {
       const response = await fastify.inject({
@@ -77,7 +89,7 @@ describe("/new", () => {
     expect(response.body).toBe("");
   });
 
-  test("Return 400 with valid payload but invalid git repository", async () => {
+  test("Return 403 with valid payload but invalid git repository", async () => {
     const repository = "git://localhost/non-existing" as const;
     const branch = "trunk" as const;
     const response = await fastify.inject({
@@ -99,7 +111,7 @@ describe("/new", () => {
     });
   });
 
-  test("Adding the same repository and branch twice returns 400", async () => {
+  test("Adding the same repository and branch twice returns 403", async () => {
     const repository = "git://localhost/repos/single-branch" as const;
     const branch = "trunk" as const;
 
@@ -200,4 +212,36 @@ describe("/list-commits", () => {
       last_commit_retrieval_time: expectedRetrievalTime,
     });
   });
+
+  for (const [name, components] of [
+    ["empty", ""],
+    ["one one component", "/one"],
+    ["one one component with a trailing slash", "/one/"],
+  ] as const) {
+    test(`Return 404 with invalid numbers of path components: ${name}`, async () => {
+      const response = await fastify.inject({
+        method: "GET",
+        url: `/list-commits/${components}`,
+        query: "num_of_commits",
+      });
+
+      expect(response.statusCode).toBe(404);
+    });
+  }
+
+  for (const [name, components] of [
+    ["containing *", "mas*ter"],
+    ["containing [", "mas[ter"],
+    ["containing ?", "mas?ter"],
+  ] as const) {
+    test(`Return 400 with an invalid branch name: ${name}`, async () => {
+      const response = await fastify.inject({
+        method: "GET",
+        url: `/list-commits/repo/${components}`,
+        query: "num_of_commits",
+      });
+
+      expect(response.statusCode).toBe(400);
+    });
+  }
 });

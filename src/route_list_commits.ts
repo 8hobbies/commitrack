@@ -17,6 +17,7 @@
  */
 
 import { FastifyPluginAsyncJsonSchemaToTs } from "@fastify/type-provider-json-schema-to-ts";
+import { branchNamePattern } from "./common.js";
 
 interface QueryStringSchemaInterface {
   num_of_commits: number;
@@ -47,7 +48,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async function (fastify, _) {
           type: "object",
           properties: {
             repository: { type: "string" },
-            branch: { type: "string" },
+            branch: { type: "string", pattern: branchNamePattern },
           },
           required: ["repository", "branch"],
         },
