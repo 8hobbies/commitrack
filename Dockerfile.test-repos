@@ -25,6 +25,11 @@ RUN apk add --no-cache git git-daemon
 
 WORKDIR /srv/repos
 
+RUN addgroup --system --gid 1001 git
+RUN adduser --system --uid 1001 git
+RUN chown git:git /srv/repos
+USER git
+
 RUN git config --global user.email "you@example.com" && \
     git config --global user.name "Your Name"
 
@@ -40,10 +45,6 @@ RUN mkdir double-branch && cd double-branch && \
     git checkout -b feature && \
     echo "feature" >> README && git add README && \
     GIT_COMMITER_DATE="2025-01-20T22:22:22Z" git commit --date "2025-01-20T22:22:22Z" -m "feature"
-
-RUN addgroup --system --gid 1001 git
-RUN adduser --system --uid 1001 git
-USER git
 
 EXPOSE 9418
 
