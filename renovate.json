@@ -3,10 +3,17 @@
   "extends": ["gitlab>8hobbies/renovate-config#v5"],
   "packageRules": [
     {
-      "description": "Loose versioning so that Renovate bumps the suffix",
+      "description": "Versioning of postgres docker image. Alpine's version's significance is behind postgres' major.",
       "matchDatasources": ["docker"],
-      "matchPackageNames": ["docker.io/node", "docker.io/postgres"],
-      "versioning": "loose"
+      "matchPackageNames": ["docker.io/postgres"],
+      "versioning": "regex:^(?<major>\\d+)\\.(?<build>\\d+)-(?<compatibility>alpine)(?<minor>\\d+)\\.(?<patch>\\d+)$"
+    },
+    {
+      "description": "Versioning of node alpine-based docker image. Alpine's version's significance is behind minor of node.",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["docker.io/node"],
+      "matchDepNames": ["alpine"],
+      "versioning": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<revision>\\d+)-(?<depName>alpine)(?<patch>\\d+)\\.(?<build>\\d+)$"
     }
   ]
 }
