@@ -61,3 +61,8 @@ export async function getRemoteGitCommit(
     return null;
   }
 }
+
+/** This pattern filters out a subset of illegal branch names. It's not perfect,
+but it should eliminate all uses of patterns that may match multiple branch
+names. */
+export const branchNamePattern = "^[^*?[]+$" as const;

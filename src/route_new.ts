@@ -16,8 +16,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { branchNamePattern, getRemoteGitCommit } from "./common.js";
 import { FastifyPluginAsyncJsonSchemaToTs } from "@fastify/type-provider-json-schema-to-ts";
-import { getRemoteGitCommit } from "./common.js";
 
 // eslint-disable-next-line @typescript-eslint/require-await
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async function (fastify, _) {
@@ -29,7 +29,10 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async function (fastify, _) {
           type: "object",
           properties: {
             repository: { type: "string" },
-            branch: { type: "string" },
+            branch: {
+              type: "string",
+              pattern: branchNamePattern,
+            },
           },
           required: ["repository", "branch"],
         },

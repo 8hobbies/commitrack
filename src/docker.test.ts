@@ -66,7 +66,7 @@ describe("Brief test directly for a running Docker container", () => {
       expect(await response.text()).toBe("");
     });
 
-    test("Return 400 with valid payload but invalid git repository", async () => {
+    test("Return 403 with valid payload but invalid git repository", async () => {
       const repository = "git://localhost/non-existing" as const;
       const branch = "trunk" as const;
       const response = await fetch(`${instanceAddress}/${newFirstPathComp}`, {
@@ -127,6 +127,14 @@ describe("Brief test directly for a running Docker container", () => {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         last_commit_retrieval_time: expect.any(Number),
       });
+    });
+
+    test("Return 400 with invalid path components", async () => {
+      const response = await fetch(
+        `${instanceAddress}/list-commits/repo/mas*ter?num_of_commits=1`,
+      );
+
+      expect(response.status).toBe(400);
     });
   });
 });
