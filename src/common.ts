@@ -66,3 +66,6 @@ export async function getRemoteGitCommit(
 but it should eliminate all uses of patterns that may match multiple branch
 names. */
 export const branchNamePattern = "^[^*?[]+$" as const;
+
+/** Imposed limit of string length in various payloads. */
+export const commonMaxLength = 1000 as const;

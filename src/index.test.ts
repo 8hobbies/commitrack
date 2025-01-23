@@ -61,6 +61,22 @@ describe("/new", () => {
       "branch name containing ?",
       { repository: "https://example/my/repo", branch: "m?aster" },
     ],
+    [
+      "empty branch name",
+      { repository: "https://example/my/repo", branch: "" },
+    ],
+    [
+      "overly long branch name",
+      { repository: "https://example/my/repo", branch: "a".repeat(10000) },
+    ],
+    ["empty repository URL", { repository: "", branch: "default" }],
+    [
+      "overly long repository URL",
+      {
+        repository: `https://example/my/repo/${"a".repeat(10000)}`,
+        branch: "default",
+      },
+    ],
   ] as const) {
     test(`Return 400 with invalid payload: ${name}`, async () => {
       const response = await fastify.inject({
@@ -215,14 +231,15 @@ describe("/list-commits", () => {
 
   for (const [name, components] of [
     ["empty", ""],
-    ["one one component", "/one"],
-    ["one one component with a trailing slash", "/one/"],
+    ["one component", "/one"],
+    ["one component with duplicate leading slash", "//one"],
+    ["one component with a trailing slash", "/one/"],
   ] as const) {
     test(`Return 404 with invalid numbers of path components: ${name}`, async () => {
       const response = await fastify.inject({
         method: "GET",
         url: `/list-commits/${components}`,
-        query: "num_of_commits",
+        query: { num_of_commits: "1" },
       });
 
       expect(response.statusCode).toBe(404);
@@ -233,12 +250,13 @@ describe("/list-commits", () => {
     ["containing *", "mas*ter"],
     ["containing [", "mas[ter"],
     ["containing ?", "mas?ter"],
+    // Empty branch name is same as one component with a trailing slash test.
   ] as const) {
     test(`Return 400 with an invalid branch name: ${name}`, async () => {
       const response = await fastify.inject({
         method: "GET",
-        url: `/list-commits/repo/${components}`,
-        query: "num_of_commits",
+        url: `/list-commits/repo/${encodeURIComponent(components)}`,
+        query: { num_of_commits: "1" },
       });
 
       expect(response.statusCode).toBe(400);
