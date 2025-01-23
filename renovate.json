@@ -12,7 +12,7 @@
       "description": "Versioning of node alpine-based docker image. Alpine's version's significance is behind minor of node.",
       "matchDatasources": ["docker"],
       "matchPackageNames": ["docker.io/node"],
-      "matchDepNames": ["alpine"],
+      "matchCurrentValue": "*alpine*",
       "versioning": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<revision>\\d+)-(?<depName>alpine)(?<patch>\\d+)\\.(?<build>\\d+)$"
     }
   ]
