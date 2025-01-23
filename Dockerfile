@@ -31,7 +31,7 @@ WORKDIR /app
 LABEL org.opencontainers.image.authors="8 Hobbies, LLC"
 LABEL org.opencontainers.image.licenses=AGPL-3.0-or-later
 
-RUN apt-get update && apt-get install --no-install-recommends -y git-core && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install --no-install-recommends -y git-core curl && rm -rf /var/lib/apt/lists/*
 
 ENV NODE_ENV=production
 
@@ -46,6 +46,7 @@ USER nodejs
 
 EXPOSE 3000
 
+HEALTHCHECK CMD --interval=1m --timeout=3s CMD curl http://localhost/health || exit 1
 ENV PORT=3000
 ENV HOSTNAME="::"
 
