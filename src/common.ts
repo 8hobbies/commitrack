@@ -68,4 +68,5 @@ names. */
 export const branchNamePattern = "^[^*?[]+$" as const;
 
 /** Imposed limit of string length in various payloads. */
-export const commonMaxLength = 1000 as const;
+export const repoUrlMaxLength = 1000 as const;
+export const branchMaxLength = 100 as const;

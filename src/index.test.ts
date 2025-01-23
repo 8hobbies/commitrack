@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { branchMaxLength, repoUrlMaxLength } from "./common.ts";
 import { PrismaClient } from "@prisma/client";
 import fastify from "./index.ts";
 
@@ -67,13 +68,16 @@ describe("/new", () => {
     ],
     [
       "overly long branch name",
-      { repository: "https://example/my/repo", branch: "a".repeat(10000) },
+      {
+        repository: "https://example/my/repo",
+        branch: "a".repeat(branchMaxLength + 1),
+      },
     ],
     ["empty repository URL", { repository: "", branch: "default" }],
     [
       "overly long repository URL",
       {
-        repository: `https://example/my/repo/${"a".repeat(10000)}`,
+        repository: `https://example/my/repo/${"a".repeat(repoUrlMaxLength + 1)}`,
         branch: "default",
       },
     ],
@@ -250,12 +254,28 @@ describe("/list-commits", () => {
     ["containing *", "mas*ter"],
     ["containing [", "mas[ter"],
     ["containing ?", "mas?ter"],
+    ["overly long", "a".repeat(branchMaxLength + 1)],
     // Empty branch name is same as one component with a trailing slash test.
   ] as const) {
     test(`Return 400 with an invalid branch name: ${name}`, async () => {
       const response = await fastify.inject({
         method: "GET",
         url: `/list-commits/repo/${encodeURIComponent(components)}`,
+        query: { num_of_commits: "1" },
+      });
+
+      expect(response.statusCode).toBe(400);
+    });
+  }
+
+  for (const [name, components] of [
+    ["overly long", "a".repeat(repoUrlMaxLength + 1)],
+    // Empty branch name is same as one component with duplicate slashes test.
+  ] as const) {
+    test(`Return 400 with an invalid repo URL: ${name}`, async () => {
+      const response = await fastify.inject({
+        method: "GET",
+        url: `/list-commits/${encodeURIComponent(components)}/branch`,
         query: { num_of_commits: "1" },
       });
 
