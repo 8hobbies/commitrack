@@ -31,7 +31,7 @@ WORKDIR /app
 LABEL org.opencontainers.image.authors="8 Hobbies, LLC"
 LABEL org.opencontainers.image.licenses=AGPL-3.0-or-later
 
-RUN apt-get update && apt-get install -y git-core && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install --no-install-recommends -y git-core && rm -rf /var/lib/apt/lists/*
 
 ENV NODE_ENV=production
 
