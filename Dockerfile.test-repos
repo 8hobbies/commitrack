@@ -25,6 +25,11 @@ RUN apk add --no-cache git git-daemon
 
 WORKDIR /srv/repos
 
+RUN addgroup --system --gid 1001 git
+RUN adduser --system --uid 1001 git
+RUN chown git:git /srv/repos
+USER git
+
 RUN git config --global user.email "you@example.com" && \
     git config --global user.name "Your Name"
 
