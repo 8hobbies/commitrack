@@ -2,11 +2,10 @@
 *.test.ts
 Dockerfile
 Dockerfile.*
-/docker-compose.yml
-dist
+/dist
 /docs
-/.github
 node_modules
 *.tsbuildinfo
-coverage
+/coverage
 README.md
+/prisma

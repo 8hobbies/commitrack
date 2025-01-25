@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # @license AGPL-3.0-or-later
 #
 # Copyright(C) 2025 8 Hobbies, LLC
@@ -15,39 +17,10 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-name: Dockerfile
+set -e -x
 
-on:
-  push:
-    branches: ["master"]
-  pull_request:
-    branches: ["master"]
+./scripts/init_test_db.sh
 
-env:
-  DOCKER_CMD: docker
-
-jobs:
-  test:
-    name: Dockerfile
-    runs-on: ubuntu-24.04
-
-    steps:
-      - uses: actions/checkout@v4.2.2
-
-      - name: Use Node.js
-        uses: actions/setup-node@v4.1.0
-        with:
-          node-version: 22
-          cache: "npm"
-
-      - name: Install npm dependencies
-        run: npm ci
-
-      - name: Build
-        run: npm run build_container_img
-
-      - name: Start the container
-        run: npm run start_container
-
-      - name: Run test
-        run: npm run test_live
+pushd packages/api-server
+DATABASE_CONNECTION_STRING=postgresql://commitrack:commitrack@localhost:5432/commitrack vitest --run docker.test.ts
+popd
