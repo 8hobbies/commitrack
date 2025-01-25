@@ -4,14 +4,14 @@ import globals from "globals";
 export default [
   ...configs.recommended,
   {
-    files: ["*.ts"],
+    files: ["src/**.ts", "*.ts"],
     ignores: configs.ignores,
     languageOptions: {
       globals: {
         ...globals.node,
       },
       parserOptions: {
-        project: ["tsconfig.json"],
+        project: ["tsconfig.prod.json", "tsconfig.test.json"],
         tsconfigRootDir: import.meta.dirname,
       },
     },

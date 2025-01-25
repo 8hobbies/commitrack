@@ -1,7 +1,6 @@
-/*.tgz
-/dist
+dist
 /docs
 node_modules
 *.tsbuildinfo
-/coverage
+coverage
 /.env

@@ -29,7 +29,9 @@ timeout 10s bash -c "until ${DOCKER_CMD} exec commitrack-test-repos git ls-remot
 
 
 ./scripts/init_test_db.sh || { echo "Failed to initialize db" ; exit 1 ; }
+pushd packages/api-server
 DATABASE_CONNECTION_STRING=postgresql://commitrack:commitrack@localhost:5432/commitrack npx vitest --run index.test.ts --coverage
 result=$?
+popd
 ${DOCKER_CMD} compose down
 exit $result

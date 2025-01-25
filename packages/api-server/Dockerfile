@@ -21,7 +21,8 @@ FROM docker.io/node:22.13.1-alpine3.21@sha256:9861e45b6bcfee6115070bacd7daa1f101
 
 WORKDIR /app
 
-COPY . .
+COPY . ./
+COPY --from=root prisma/ ./prisma/
 RUN npm install -g npm && npm ci && npm run build && rm dist/*.tsbuildinfo
 
 # Production image --------------
