@@ -17,7 +17,7 @@
 
 
 # Build the app -------------
-FROM docker.io/node:22.13.1-alpine3.21@sha256:9861e45b6bcfee6115070bacd7daa1f10179bd95675b683fdba0de8aaa8f4269 as builder
+FROM docker.io/node:22.13.1-alpine3.21@sha256:e2b39f7b64281324929257d0f8004fb6cb4bf0fdfb9aa8cedb235a766aec31da as builder
 
 WORKDIR /app
 
@@ -26,7 +26,7 @@ COPY --from=root prisma/ ./prisma/
 RUN npm install -g npm && npm ci && npm run build && rm dist/*.tsbuildinfo
 
 # Production image --------------
-FROM docker.io/node:22.13.1-bookworm-slim@sha256:34d121c93aad04b4b93152216d419d5b3b14c12fedd87aaa8f1d64c827edd817 AS runner
+FROM docker.io/node:22.13.1-bookworm-slim@sha256:d6d1b3a6f21a25e43d765816281b4a86e5f1ebf843cfae1b14dd0f1c28257cc7 AS runner
 WORKDIR /app
 
 LABEL org.opencontainers.image.authors="8 Hobbies, LLC"
