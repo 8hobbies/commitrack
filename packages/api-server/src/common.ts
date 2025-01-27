@@ -18,50 +18,6 @@
 
 /** Utilities. */
 
-import child_process from "node:child_process";
-import { promisify } from "node:util";
-
-const execFile = promisify(child_process.execFile);
-
-const commit_id_length = 40 as const;
-const git_executable_path = process.env.GIT_EXECUTABLE_PATH ?? "/usr/bin/git";
-/** git command timeout in milliseconds. */
-const git_command_timeout = parseInt(process.env.GIT_COMMAND_TIMEOUT ?? "2000");
-
-/** Get remote git commit hash of a given branch of a given URL. */
-export async function getRemoteGitCommit(
-  url: string,
-  branch: string,
-): Promise<string | null> {
-  try {
-    // TODO: Sanitize branch
-    // TODO: refuse http
-    const { stdout } = await execFile(
-      git_executable_path,
-      // TODO: "--heads" is deprecated, but we are on an older version of git.
-      // Use "--branches" once we upgrade to trixie.
-      ["ls-remote", "--heads", url, branch],
-      {
-        timeout: git_command_timeout,
-      },
-    );
-    const hash = stdout.trim().slice(0, commit_id_length);
-    /* v8 ignore start */
-    // TODO: Better check
-    if (hash.length != commit_id_length) {
-      // git printed an unexpected value
-      return null;
-    }
-    /* v8 ignore end */
-
-    return hash;
-  } catch (error: unknown) {
-    console.log({ error });
-    // git failed
-    return null;
-  }
-}
-
 /** This pattern filters out a subset of illegal branch names. It's not perfect,
 but it should eliminate all uses of patterns that may match multiple branch
 names. */

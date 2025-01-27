@@ -21,7 +21,7 @@
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 
-const packages = ["api-server"] as const;
+const packages = ["api-server", "common"] as const;
 
 const packagesDir = path.join(import.meta.dirname, "packages");
 const cmd = process.argv.slice(2);

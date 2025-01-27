@@ -19,10 +19,10 @@
 import {
   branchMaxLength,
   branchNamePattern,
-  getRemoteGitCommit,
   repoUrlMaxLength,
 } from "./common.js";
 import { FastifyPluginAsyncJsonSchemaToTs } from "@fastify/type-provider-json-schema-to-ts";
+import { getRemoteGitCommit } from "../../common/src/common.js";
 
 // eslint-disable-next-line @typescript-eslint/require-await
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async function (fastify, _) {

@@ -1,0 +1,11 @@
+**/.git
+*.test.ts
+Dockerfile
+Dockerfile.*
+/dist
+/docs
+node_modules
+*.tsbuildinfo
+/coverage
+README.md
+/prisma
