@@ -16,27 +16,26 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/** Run an NPM command in each package directory. */
+import { configDefaults, defineConfig } from "vitest/config";
 
-import path from "node:path";
-import { spawnSync } from "node:child_process";
-
-const packages = ["api-server", "common", "updater"] as const;
-
-const packagesDir = path.join(import.meta.dirname, "packages");
-const cmd = process.argv.slice(2);
-if (cmd.length === 0) {
-  throw Error("No command specified.");
-}
-
-for (const pkg of packages) {
-  const packageDir = path.join(packagesDir, pkg);
-  console.log(`Processing "npm ${cmd.join(" ")}" for ${pkg}...`);
-  if (
-    spawnSync("npm", ["--prefix", packageDir, ...cmd], {
-      stdio: "inherit",
-    }).status !== 0
-  ) {
-    throw Error(`Failed to process ${pkg}.`);
-  }
-}
+export default defineConfig({
+  test: {
+    exclude: [...configDefaults.exclude, "dist/*"],
+    globals: true,
+    coverage: {
+      provider: "v8",
+      exclude: [
+        "dist/**",
+        "eslint.config.mjs",
+        "vitest.config.ts",
+        "src/docker.test.ts",
+      ],
+      thresholds: {
+        lines: 100,
+        functions: 100,
+        branches: 100,
+        statements: 100,
+      },
+    },
+  },
+});

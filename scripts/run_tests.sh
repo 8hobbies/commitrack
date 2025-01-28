@@ -17,21 +17,37 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-set -x
+set -x -e
 
 DOCKER_CMD=${DOCKER_CMD:-podman}
 
-${DOCKER_CMD} build . -f Dockerfile.test-repos -t commitrack-test-repos
-${DOCKER_CMD} compose up db test-repos --detach || { echo "Failed to spin up the database container" ; exit 1; }
+# Containers may be up if the previous test failed.
+${DOCKER_CMD} compose down
+
+npm run build_container_img
+${DOCKER_CMD} compose up db test-repos --detach || { echo "Failed to spin up the database and test-repos container" ; exit 1; }
 
 timeout 10s bash -c "until ${DOCKER_CMD} exec commitrack-db pg_isready -U commitrack -d commitrack; do sleep 1; done" || { echo "Failed to wait for the database to go up" ; exit 1; }
 timeout 10s bash -c "until ${DOCKER_CMD} exec commitrack-test-repos git ls-remote git://localhost/repos/single-branch; do sleep 1; done" || { echo "Failed to wait for the test git repos to go up" ; exit 1; }
 
 
 ./scripts/init_test_db.sh || { echo "Failed to initialize db" ; exit 1 ; }
+export DATABASE_CONNECTION_STRING=postgresql://commitrack:commitrack@localhost:5432/commitrack
+
 pushd packages/api-server
-DATABASE_CONNECTION_STRING=postgresql://commitrack:commitrack@localhost:5432/commitrack npx vitest --run index.test.ts --coverage
+npx vitest --run index.test.ts --coverage
 result=$?
 popd
+
+${DOCKER_CMD} compose up commitrack --detach || { echo "Failed to spin up the api-server container" ; exit 1; }
+timeout 10s bash -c "until curl http://localhost:3000/health; do sleep 1; done" || { echo "Failed to wait for the api-server to go up" ; exit 1; }
+
+pushd packages/updater
+npx vitest --run index.test.ts --coverage
+result=$?
+if [[ $result -ne 0 ]]; then
+  exit $result
+fi
+popd
+
 ${DOCKER_CMD} compose down
-exit $result
