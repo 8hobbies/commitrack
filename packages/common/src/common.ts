@@ -28,11 +28,23 @@ const git_executable_path = process.env.GIT_EXECUTABLE_PATH ?? "/usr/bin/git";
 /** git command timeout in milliseconds. */
 const git_command_timeout = parseInt(process.env.GIT_COMMAND_TIMEOUT ?? "2000");
 
-/** Get remote git commit hash of a given branch of a given URL. */
+/** Get remote git commit hash of a given branch of a given URL.
+ *
+ * @param url - URL of the git repository.
+ * @param branch - Branch name. It must not contain wildcard characters, *, [,
+ * ?.
+ */
 export async function getRemoteGitCommit(
   url: string,
   branch: string,
 ): Promise<string | null> {
+  /* v8 ignore start */
+  if (branch.includes("?") || branch.includes("*") || branch.includes("[")) {
+    // branch contains wildcard characters
+    throw new Error(`Unexpected wildcard character in branch name: ${branch}`);
+  }
+  /* v8 ignore end */
+
   try {
     // TODO: refuse http
     const { stdout } = await execFile(
