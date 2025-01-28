@@ -2,7 +2,7 @@ root = true
 
 max_line_length = 80
 
-[*.{mjs,ts,tsx}]
+[*.{mjs,ts,tsx,sh}]
 indent_size = 2
 indent_style = space
 
