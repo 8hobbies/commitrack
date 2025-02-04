@@ -31,9 +31,9 @@ WORKDIR /updater
 
 ENV DATABASE_CONNECTION_STRING=postgresql://commitrack:commitrack@db:5432/commitrack
 
-COPY . ./
-COPY --from=root prisma/ ./prisma/
 COPY --from=root packages/common/ /common
+COPY --from=root prisma/ ./prisma/
+COPY . ./
 RUN npm install -g npm && npm ci
 
 CMD ["npx", "vitest", "--run", "index.test.ts", "--coverage"]
