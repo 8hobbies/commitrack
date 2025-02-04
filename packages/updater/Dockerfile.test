@@ -1,0 +1,39 @@
+# @license AGPL-3.0-or-later
+#
+# Copyright(C) 2025 8 Hobbies, LLC
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+# Tester container for the updater.
+# We need to run tests in the container because it needs to join the same
+# network as the API server for the tests to run properly.
+
+FROM docker.io/node:22.13.1-alpine3.21@sha256:e2b39f7b64281324929257d0f8004fb6cb4bf0fdfb9aa8cedb235a766aec31da as builder
+
+# Remove the community repository. This is to ensure that we only rely on
+# packages with future availability.
+RUN sed -i /community/d /etc/apk/repositories && cat /etc/apk/repositories
+
+RUN apk add --no-cache git
+
+WORKDIR /updater
+
+ENV DATABASE_CONNECTION_STRING=postgresql://commitrack:commitrack@db:5432/commitrack
+
+COPY . ./
+COPY --from=root prisma/ ./prisma/
+COPY --from=root packages/common/ /common
+RUN npm install -g npm && npm ci
+
+CMD ["npx", "vitest", "--run", "index.test.ts", "--coverage"]

@@ -9,6 +9,7 @@
   "main": "dist/index.js",
   "scripts": {
     "lint": "eslint *.ts src/*.ts *.mjs && prettier . --check",
+    "test": "${DOCKER_CMD:-podman} build -f Dockerfile.test . --build-context root=../../ -t updater-tester && ${DOCKER_CMD:-podman} run --rm --network=commitrack updater-tester",
     "build": "npm run compile && cp -r prisma/schema.prisma dist/",
     "build_container_img": "echo TODO",
     "format": "eslint --fix *.ts src/*.ts *.mjs && prettier . --write",

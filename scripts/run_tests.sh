@@ -39,11 +39,11 @@ npx vitest --run index.test.ts --coverage
 result=$?
 popd
 
-${DOCKER_CMD} compose up commitrack --detach || { echo "Failed to spin up the api-server container" ; exit 1; }
+${DOCKER_CMD} compose up api-server --detach || { echo "Failed to spin up the api-server container" ; exit 1; }
 timeout 10s bash -c "until curl http://localhost:3000/health; do sleep 1; done" || { echo "Failed to wait for the api-server to go up" ; exit 1; }
 
 pushd packages/updater
-npx vitest --run index.test.ts --coverage
+npx npm run test
 result=$?
 if [[ $result -ne 0 ]]; then
   exit $result
