@@ -104,11 +104,7 @@ describe("Test updating commit", () => {
     const now = new Date().getTime();
     const yesterday = new Date();
     const dayOffset = 24 * 60 * 60 * 1000 + 1;
-    yesterday.setTime(
-      // Use 1000 of milliseconds because the last commit retrieval time is
-      // stored truncated to seconds.
-      Math.floor((yesterday.getTime() - dayOffset) / 1000) * 1000,
-    );
+    yesterday.setTime(yesterday.getTime() - dayOffset);
     await updateSingleBranchRepoLastCommitRetrievalTime(yesterday);
 
     await updateCommits(1);
@@ -141,8 +137,7 @@ describe("Test updating commit", () => {
     }
     expect(
       commitsAfterUpdate.last_commit_retrieval_time,
-      // Leave 1s for time truncation in db.
-    ).toBeGreaterThanOrEqual(now - 1000);
+    ).toBeGreaterThanOrEqual(now);
     expect(commitsAfterUpdate).toHaveProperty(
       "commits",
       commitsBeforeUpdate.commits,

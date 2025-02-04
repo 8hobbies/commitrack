@@ -11,7 +11,7 @@ model branches {
   id                         Int       @id @default(autoincrement())
   repository                 String
   branch                     String
-  last_commit_retrieval_time DateTime  @db.Timestamp(0)
+  last_commit_retrieval_time DateTime  @db.Timestamp(3)
   commits                    commits[]
 
   @@unique([repository, branch])
@@ -20,7 +20,7 @@ model branches {
 
 model commits {
   branch_id      Int
-  retrieval_time DateTime @db.Timestamp(0)
+  retrieval_time DateTime @db.Timestamp(3)
   commit_hash    String
   branches       branches @relation(fields: [branch_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_branches")
 
