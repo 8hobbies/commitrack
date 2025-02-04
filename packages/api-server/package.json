@@ -1,8 +1,8 @@
 {
-  "name": "commitrack",
+  "name": "commitrack-api-server",
   "version": "1.0.0",
   "private": true,
-  "description": "Commit Tracker",
+  "description": "Commit Tracker API Server",
   "license": "AGPL-3.0-or-later",
   "author": "8 Hobbies, LLC",
   "type": "module",
@@ -10,7 +10,7 @@
   "scripts": {
     "lint": "eslint *.ts src/*.ts *.mjs && prettier . --check",
     "build": "npm run compile && cp -r prisma/schema.prisma dist/",
-    "build_container_img": "${DOCKER_CMD:-podman} build . --build-context root=../../ -t commitrack-dev",
+    "build_container_img": "${DOCKER_CMD:-podman} build . --build-context root=../../ -t commitrack-api-server",
     "format": "eslint --fix *.ts src/*.ts *.mjs && prettier . --write",
     "compile": "tsc -p tsconfig.prod.json && tsc -p tsconfig.test.json"
   },
