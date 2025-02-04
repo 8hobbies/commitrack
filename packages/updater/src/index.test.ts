@@ -96,22 +96,19 @@ describe("Test updating commit", () => {
     await addSingleBranchRepo();
     const commitsBeforeUpdate = await listSingleBranchRepoCommits();
     // sanity check
-    if (
-      !(
-        "commits" in commitsBeforeUpdate &&
-        "last_commit_retrieval_time" in commitsBeforeUpdate
-      )
-    ) {
-      throw new Error(
-        "Expected commits and last_commit_retrieval_time in the response.",
-      );
+    if (!("commits" in commitsBeforeUpdate)) {
+      throw new Error("Expected commits in the response.");
     }
 
     // Make the last commit retrieval time to be more than 24 hours ago.
     const now = new Date().getTime();
     const yesterday = new Date();
     const dayOffset = 24 * 60 * 60 * 1000 + 1;
-    yesterday.setTime(yesterday.getTime() - dayOffset);
+    yesterday.setTime(
+      // Use 1000 of milliseconds because the last commit retrieval time is
+      // stored truncated to seconds.
+      Math.floor((yesterday.getTime() - dayOffset) / 1000) * 1000,
+    );
     await updateSingleBranchRepoLastCommitRetrievalTime(yesterday);
 
     await updateCommits(1);
@@ -128,8 +125,7 @@ describe("Test updating commit", () => {
         }
 
         if (
-          commitsAfterUpdate.last_commit_retrieval_time ===
-          commitsBeforeUpdate.last_commit_retrieval_time
+          commitsAfterUpdate.last_commit_retrieval_time === yesterday.getTime()
         ) {
           throw new Error("last_commit_retrieval_time is not yet updated.");
         }
