@@ -18,8 +18,8 @@
 ---
 services:
   api-server:
-    image: commitrack-dev
-    container_name: commitrack-dev
+    image: commitrack-api-server
+    container_name: commitrack-api-server
     ports:
       - "3000:3000"
     environment:
