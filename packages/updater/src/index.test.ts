@@ -19,7 +19,7 @@
 import { PrismaClient } from "@prisma/client";
 import { updateCommits } from "./index.ts";
 
-const apiServerUrl = "http://localhost:3000" as const;
+const apiServerUrl = "http://api-server:3000" as const;
 const prisma = new PrismaClient();
 
 const singleBranchRepository = "git://test-repos/repos/single-branch" as const;
@@ -32,6 +32,7 @@ async function cleanUpTest(): Promise<void> {
   await prisma.$queryRaw`delete from branches`;
 }
 
+/** Add the single branch repo to the database. */
 async function addSingleBranchRepo(): Promise<void> {
   const response = await fetch(`${apiServerUrl}/new`, {
     method: "POST",
@@ -45,6 +46,23 @@ async function addSingleBranchRepo(): Promise<void> {
   if (response.status !== 201) {
     throw new Error("Failed to add the single branch repository.");
   }
+}
+
+/** Update the single branch repo last commit retrieval time */
+async function updateSingleBranchRepoLastCommitRetrievalTime(
+  t: Date,
+): Promise<void> {
+  await prisma.branches.update({
+    where: {
+      repository_branch: {
+        repository: singleBranchRepository,
+        branch: singleBranchRepoBranch,
+      },
+    },
+    data: {
+      last_commit_retrieval_time: t,
+    },
+  });
 }
 
 async function listSingleBranchRepoCommits(): Promise<object> {
@@ -73,4 +91,65 @@ describe("Test updating commit", () => {
     const commitsAfterUpdate = await listSingleBranchRepoCommits();
     expect(commitsBeforeUpdate).toStrictEqual(commitsAfterUpdate);
   });
+
+  test("Only update last commit retrival time when there's no new commit but retriveval time is more than 24 hours", async () => {
+    await addSingleBranchRepo();
+    const commitsBeforeUpdate = await listSingleBranchRepoCommits();
+    // sanity check
+    if (
+      !(
+        "commits" in commitsBeforeUpdate &&
+        "last_commit_retrieval_time" in commitsBeforeUpdate
+      )
+    ) {
+      throw new Error(
+        "Expected commits and last_commit_retrieval_time in the response.",
+      );
+    }
+
+    // Make the last commit retrieval time to be more than 24 hours ago.
+    const now = new Date().getTime();
+    const yesterday = new Date();
+    const dayOffset = 24 * 60 * 60 * 1000 + 1;
+    yesterday.setTime(yesterday.getTime() - dayOffset);
+    await updateSingleBranchRepoLastCommitRetrievalTime(yesterday);
+
+    await updateCommits(1);
+
+    let commitsAfterUpdate: object = {};
+    // Wait until the last commit retrieval time is updated.
+    await vi.waitFor(
+      async () => {
+        commitsAfterUpdate = await listSingleBranchRepoCommits();
+        if (!("last_commit_retrieval_time" in commitsAfterUpdate)) {
+          throw new Error(
+            "Expected last_commit_retrieval_time in the response.",
+          );
+        }
+
+        if (
+          commitsAfterUpdate.last_commit_retrieval_time ===
+          commitsBeforeUpdate.last_commit_retrieval_time
+        ) {
+          throw new Error("last_commit_retrieval_time is not yet updated.");
+        }
+      },
+      {
+        timeout: 5000,
+      },
+    );
+
+    expect(commitsAfterUpdate).toHaveProperty("last_commit_retrieval_time");
+    if (!("last_commit_retrieval_time" in commitsAfterUpdate)) {
+      throw new Error("Expected last_commit_retrieval_time in the response.");
+    }
+    expect(
+      commitsAfterUpdate.last_commit_retrieval_time,
+      // Leave 1s for time truncation in db.
+    ).toBeGreaterThanOrEqual(now - 1000);
+    expect(commitsAfterUpdate).toHaveProperty(
+      "commits",
+      commitsBeforeUpdate.commits,
+    );
+  }, 10000);
 });

@@ -1,0 +1,10 @@
+**/.git
+Dockerfile
+Dockerfile.*
+/dist
+/docs
+node_modules
+*.tsbuildinfo
+/coverage
+README.md
+/prisma
