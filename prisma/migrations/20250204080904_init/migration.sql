@@ -3,7 +3,7 @@ CREATE TABLE "branches" (
     "id" SERIAL NOT NULL,
     "repository" TEXT NOT NULL,
     "branch" TEXT NOT NULL,
-    "last_commit_retrieval_time" TIMESTAMP(0) NOT NULL,
+    "last_commit_retrieval_time" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "branches_pkey" PRIMARY KEY ("id")
 );
@@ -11,7 +11,7 @@ CREATE TABLE "branches" (
 -- CreateTable
 CREATE TABLE "commits" (
     "branch_id" INTEGER NOT NULL,
-    "retrieval_time" TIMESTAMP(0) NOT NULL,
+    "retrieval_time" TIMESTAMP(3) NOT NULL,
     "commit_hash" TEXT NOT NULL,
 
     CONSTRAINT "commits_pkey" PRIMARY KEY ("branch_id","retrieval_time")

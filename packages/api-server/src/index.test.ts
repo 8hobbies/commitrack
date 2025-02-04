@@ -189,9 +189,8 @@ describe("/list-commits", () => {
     const repository = "git://localhost/repos/single-branch" as const;
     const branch = "trunk" as const;
     const fakeSystemTime = 1737501641134 as const;
-    // The app stores rounded down to seconds. It appears to be a round up of
-    // fakeSystemTime because the mock timer advances the time by 1 second.
-    const expectedRetrievalTime = 1737501642000 as const;
+    // The mock timer advances the time by 1 second.
+    const expectedRetrievalTime = fakeSystemTime + 1000;
     vi.useFakeTimers({
       now: fakeSystemTime,
       shouldAdvanceTime: true,
