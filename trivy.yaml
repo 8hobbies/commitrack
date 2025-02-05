@@ -1,0 +1,21 @@
+format: "sarif"
+exit-code: 1
+
+severity:
+  - MEDIUM
+  - HIGH
+  - CRITICAL
+
+vulnerability:
+  ignore-unfixed: true
+
+scan:
+  skip-files:
+    # Used in test only, not in production.
+    - Dockerfile.test-repos
+    - packages/updater/Dockerfile.test
+
+  scanners:
+    - vuln
+    - secret
+    - misconfig

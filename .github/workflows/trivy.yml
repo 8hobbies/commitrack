@@ -23,29 +23,45 @@ on:
   pull_request:
     branches: ["master"]
 
+env:
+  DOCKER_CMD: docker
+
 jobs:
   scanning:
     name: Trivy Scanning
     runs-on: ubuntu-24.04
     permissions:
-      actions: read
-      contents: read
       security-events: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4.2.2
 
-      - name: Run Trivy vulnerability scanner in repo mode
-        uses: aquasecurity/trivy-action@0.29.0
-        with:
-          scan-type: "fs"
-          ignore-unfixed: true
-          format: "sarif"
-          output: "trivy-results.sarif"
-          severity: "HIGH,CRITICAL"
-          trivy-config: "./.trivy.yml"
+      - name: Install Trivy
+        uses: aquasecurity/setup-trivy@v0.2.2
 
-      - name: Upload Trivy scan results to GitHub Security tab
+      - name: Use Node.js
+        uses: actions/setup-node@v4.2.0
+        with:
+          node-version: 22
+          cache: "npm"
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Run Trivy vulnerability scanner
+        run: npm run scan_security
+        # This is not required to pass because security from upstream container
+        # images are out of our control.
+        continue-on-error: true
+
+      - name: Upload Trivy fs scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3.28.8
         with:
-          sarif_file: "trivy-results.sarif"
+          category: "trivy-fs"
+          sarif_file: "fs.sarif"
+
+      - name: Upload Trivy image scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3.28.8
+        with:
+          category: "trivy-image"
+          sarif_file: "image.sarif"

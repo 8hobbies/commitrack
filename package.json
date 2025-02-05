@@ -9,7 +9,7 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "npm run compile && tsx for_each_package.ts run build",
-    "build_container_img": "${DOCKER_CMD:-podman} build . -f Dockerfile.test-repos -t commitrack-test-repos && tsx for_each_package.ts run build_container_img",
+    "build_container_img": "${DOCKER_CMD:-podman} build . -f Dockerfile.test-repos -t localhost/commitrack-test-repos && tsx for_each_package.ts run build_container_img",
     "start_container": "${DOCKER_CMD:-podman} compose up --detach",
     "start_test_containers": "${DOCKER_CMD:-podman} compose up --detach db test-repos",
     "stop_container": "${DOCKER_CMD:-podman} compose down",
@@ -19,6 +19,7 @@
     "format": "eslint --fix *.ts *.mjs && prettier . --write && tsx for_each_package.ts run format",
     "compile": "tsc -p tsconfig.json && tsx for_each_package.ts run compile",
     "dev": "npm run build && npm run start_test_containers && ./scripts/init_test_db.sh && node dist/api-server/index.js",
+    "scan_security": "trivy fs --output fs.sarif . && npm run build_container_img && trivy image --output image.sarif localhost/commitrack-api-server",
     "postinstall": "tsx for_each_package.ts install"
   },
   "devDependencies": {

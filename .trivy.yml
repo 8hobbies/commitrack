@@ -1,5 +1,0 @@
-fs:
-  skip-files:
-    # Used in test only, not in production.
-    - Dockerfile.test-repos
-    - Dockerfile.test

@@ -10,7 +10,7 @@
   "scripts": {
     "lint": "eslint *.ts src/*.ts *.mjs && prettier . --check",
     "build": "npm run compile && cp -r prisma/schema.prisma dist/",
-    "build_container_img": "${DOCKER_CMD:-podman} build . --build-context root=../../ -t commitrack-api-server",
+    "build_container_img": "${DOCKER_CMD:-podman} build . --build-context root=../../ -t localhost/commitrack-api-server",
     "format": "eslint --fix *.ts src/*.ts *.mjs && prettier . --write",
     "compile": "tsc -p tsconfig.prod.json && tsc -p tsconfig.test.json"
   },

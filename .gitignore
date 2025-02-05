@@ -1,5 +1,6 @@
 dist
 /docs
+*.sarif
 node_modules
 *.tsbuildinfo
 coverage
