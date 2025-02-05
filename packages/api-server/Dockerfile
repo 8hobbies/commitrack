@@ -37,8 +37,8 @@ RUN apt-get update && apt-get install --no-install-recommends -y git-core
 
 ENV NODE_ENV=production
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nodejs
+RUN addgroup --system --gid 999 nodejs
+RUN adduser --system --uid 999 nodejs
 
 COPY package.json package-lock.json ./
 COPY --from=builder /api-server/dist/ ./
