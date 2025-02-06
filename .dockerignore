@@ -5,6 +5,7 @@ Dockerfile.*
 /docker-compose.yml
 dist
 /docs
+*.sarif
 /.github
 node_modules
 *.tsbuildinfo
