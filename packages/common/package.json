@@ -9,7 +9,7 @@
   "scripts": {
     "lint": "eslint src/*.ts *.mjs && prettier . --check",
     "build": "npm run compile",
-    "build_container_img": "echo 'no container image for common'",
+    "build_container_img": "${DOCKER_CMD:-podman} build . -f Dockerfile.test-repos -t localhost/commitrack-test-repos",
     "format": "eslint --fix src/*.ts *.mjs && prettier . --write",
     "compile": "tsc -p tsconfig.prod.json"
   },

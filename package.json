@@ -9,7 +9,7 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "npm run compile && tsx for_each_package.ts run build",
-    "build_container_img": "${DOCKER_CMD:-podman} build . -f Dockerfile.test-repos -t localhost/commitrack-test-repos && tsx for_each_package.ts run build_container_img",
+    "build_container_img": "tsx for_each_package.ts run build_container_img",
     "start_container": "${DOCKER_CMD:-podman} compose up --detach",
     "start_test_containers": "${DOCKER_CMD:-podman} compose up --detach db test-repos",
     "stop_container": "${DOCKER_CMD:-podman} compose down",

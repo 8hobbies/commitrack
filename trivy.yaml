@@ -12,7 +12,7 @@ vulnerability:
 scan:
   skip-files:
     # Used in test only, not in production.
-    - Dockerfile.test-repos
+    - packages/common/Dockerfile.test-repos
     - packages/updater/Dockerfile.test
 
   scanners:
