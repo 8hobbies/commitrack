@@ -16,7 +16,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import {
+  restoreAllTestRepos,
+  singleBranchTrunkSecondCommitHash,
+  useTwoCommitsSingleBranch,
+} from "../../common/src/test_utils.ts";
 import { PrismaClient } from "@prisma/client";
+import { isArrayOf } from "@8hobbies/utils";
 import { updateCommits } from "./index.ts";
 
 const apiServerUrl = "http://api-server:3000" as const;
@@ -67,7 +73,7 @@ async function updateSingleBranchRepoLastCommitRetrievalTime(
 
 async function listSingleBranchRepoCommits(): Promise<object> {
   const response = await fetch(
-    `${apiServerUrl}/list-commits/${encodeURIComponent(singleBranchRepository)}/${singleBranchRepoBranch}?num_of_commits=1`,
+    `${apiServerUrl}/list-commits/${encodeURIComponent(singleBranchRepository)}/${singleBranchRepoBranch}?num_of_commits=2`,
     {
       method: "GET",
     },
@@ -83,10 +89,78 @@ async function listSingleBranchRepoCommits(): Promise<object> {
 
 describe("Test updating commit", () => {
   beforeEach(cleanUpTest);
+  afterEach(restoreAllTestRepos);
+
+  // Wait until the last commit retrieval time is updated.
+  async function waitUntilRetrievalTimeUpdated(yesterday: Date): Promise<void> {
+    await vi.waitFor(
+      async () => {
+        const commitsAfterUpdate = await listSingleBranchRepoCommits();
+        if (!("last_commit_retrieval_time" in commitsAfterUpdate)) {
+          throw new Error(
+            "Expected last_commit_retrieval_time in the response.",
+          );
+        }
+
+        if (
+          commitsAfterUpdate.last_commit_retrieval_time === yesterday.getTime()
+        ) {
+          throw new Error("last_commit_retrieval_time is not yet updated.");
+        }
+      },
+      {
+        timeout: 5000,
+      },
+    );
+  }
+
+  test("Add the new commit if the retrieval time is more than 24 hours earlier and there is a new commit", async () => {
+    await addSingleBranchRepo();
+    const commitsBeforeUpdate = await listSingleBranchRepoCommits();
+    // sanity check
+    if (
+      !(
+        "commits" in commitsBeforeUpdate &&
+        isArrayOf(commitsBeforeUpdate.commits, "object")
+      )
+    ) {
+      throw new Error(
+        `Expected commits to be an array of objects in the response: ${JSON.stringify(commitsBeforeUpdate)}`,
+      );
+    }
+
+    // Make the last commit retrieval time to be more than 24 hours ago.
+    const now = new Date().getTime();
+    const yesterday = new Date();
+    const dayOffset = 24 * 60 * 60 * 1000 + 1;
+    yesterday.setTime(yesterday.getTime() - dayOffset);
+    await updateSingleBranchRepoLastCommitRetrievalTime(yesterday);
+    useTwoCommitsSingleBranch(); // new commit is now ready
+    await updateCommits(1);
+
+    await waitUntilRetrievalTimeUpdated(yesterday);
+
+    const commitsAfterUpdate = await listSingleBranchRepoCommits();
+    expect(commitsAfterUpdate).toHaveProperty("last_commit_retrieval_time");
+    if (!("last_commit_retrieval_time" in commitsAfterUpdate)) {
+      throw new Error("Expected last_commit_retrieval_time in the response.");
+    }
+    expect(
+      commitsAfterUpdate.last_commit_retrieval_time,
+    ).toBeGreaterThanOrEqual(now);
+    expect(commitsAfterUpdate).toHaveProperty("commits", [
+      {
+        commit_hash: singleBranchTrunkSecondCommitHash,
+        retrieval_time: commitsAfterUpdate.last_commit_retrieval_time,
+      },
+      ...commitsBeforeUpdate.commits,
+    ]);
+  });
 
   test("Do nothing when all retrieval times were less than 24 hours", async () => {
     await addSingleBranchRepo();
     const commitsBeforeUpdate = await listSingleBranchRepoCommits();
+    useTwoCommitsSingleBranch(); // new commit is now ready
     await updateCommits(1);
     const commitsAfterUpdate = await listSingleBranchRepoCommits();
     expect(commitsBeforeUpdate).toStrictEqual(commitsAfterUpdate);
@@ -109,28 +183,10 @@ describe("Test updating commit", () => {
 
     await updateCommits(1);
 
-    let commitsAfterUpdate: object = {};
     // Wait until the last commit retrieval time is updated.
-    await vi.waitFor(
-      async () => {
-        commitsAfterUpdate = await listSingleBranchRepoCommits();
-        if (!("last_commit_retrieval_time" in commitsAfterUpdate)) {
-          throw new Error(
-            "Expected last_commit_retrieval_time in the response.",
-          );
-        }
+    await waitUntilRetrievalTimeUpdated(yesterday);
 
-        if (
-          commitsAfterUpdate.last_commit_retrieval_time === yesterday.getTime()
-        ) {
-          throw new Error("last_commit_retrieval_time is not yet updated.");
-        }
-      },
-      {
-        timeout: 5000,
-      },
-    );
-
+    const commitsAfterUpdate = await listSingleBranchRepoCommits();
     expect(commitsAfterUpdate).toHaveProperty("last_commit_retrieval_time");
     if (!("last_commit_retrieval_time" in commitsAfterUpdate)) {
       throw new Error("Expected last_commit_retrieval_time in the response.");

@@ -9,7 +9,7 @@
   "main": "dist/index.js",
   "scripts": {
     "lint": "eslint *.ts src/*.ts *.mjs && prettier . --check",
-    "test": "${DOCKER_CMD:-podman} build -f Dockerfile.test . --build-context root=../../ -t updater-tester && ${DOCKER_CMD:-podman} run --rm --network=commitrack updater-tester",
+    "test": "${DOCKER_CMD:-podman} build -f Dockerfile.test . --build-context root=../../ -t localhost/updater-tester && ${DOCKER_CMD:-podman} run --rm --network=commitrack --volumes-from commitrack-test-repos localhost/updater-tester",
     "build": "npm run compile && cp -r prisma/schema.prisma dist/",
     "build_container_img": "echo TODO",
     "format": "eslint --fix *.ts src/*.ts *.mjs && prettier . --write",
@@ -17,6 +17,7 @@
   },
   "devDependencies": {
     "@8hobbies/eslint-conf-baseline": "^6.0.0",
+    "@8hobbies/utils": "^4.2.0",
     "@types/eslint": "^9.6.1",
     "@types/eslint__js": "^8.42.3",
     "@types/jest": "^29.5.14",
