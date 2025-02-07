@@ -33,10 +33,17 @@ USER git
 RUN git config --global user.email "you@example.com" && \
     git config --global user.name "Your Name"
 
-RUN mkdir single-branch && cd single-branch && \
+RUN mkdir single-branch.one-commit && cd single-branch.one-commit && \
     git init --initial-branch=trunk && \
     touch README && git add README && \
     GIT_COMMITTER_DATE="2025-01-18T00:00:00Z" git commit --date "2025-01-18T00:00:00Z" -m "Initial commit"
+
+RUN cp -r single-branch.one-commit single-branch.two-commits && \
+    cd single-branch.two-commits && \
+    echo "changes" >> README && git add README && \
+    GIT_COMMITTER_DATE="2025-01-19T00:00:00Z" git commit --date "2025-01-19T00:00:00Z" -m "Second commit"
+
+RUN ln -s single-branch.one-commit single-branch
 
 RUN mkdir double-branch && cd double-branch && \
     git init --initial-branch=default && \
@@ -47,5 +54,6 @@ RUN mkdir double-branch && cd double-branch && \
     GIT_COMMITER_DATE="2025-01-20T22:22:22Z" git commit --date "2025-01-20T22:22:22Z" -m "feature"
 
 EXPOSE 9418
+VOLUME /srv/repos
 
 ENTRYPOINT ["git", "daemon", "--export-all", "--reuseaddr", "--base-path=/srv/", "--informative-errors", "--verbose"]

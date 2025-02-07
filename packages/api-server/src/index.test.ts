@@ -19,11 +19,9 @@
 import { branchMaxLength, repoUrlMaxLength } from "./common.ts";
 import { PrismaClient } from "@prisma/client";
 import fastify from "./index.ts";
+import { singleBranchTrunkFirstCommitHash } from "../../common/src/test_utils.ts";
 
 const prisma = new PrismaClient();
-
-const singleBranchTrunkHash =
-  "20af04a56fcdea6d397d42b84f23311ca6fa9b89" as const;
 
 describe("/health", () => {
   test("Return 200", async () => {
@@ -224,7 +222,7 @@ describe("/list-commits", () => {
     expect(JSON.parse(response.body)).toStrictEqual({
       commits: [
         {
-          commit_hash: singleBranchTrunkHash,
+          commit_hash: singleBranchTrunkFirstCommitHash,
           retrieval_time: expectedRetrievalTime,
         },
       ],
