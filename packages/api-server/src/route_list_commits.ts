@@ -22,6 +22,8 @@ import {
   repoUrlMaxLength,
 } from "./common.js";
 import { FastifyPluginAsyncJsonSchemaToTs } from "@fastify/type-provider-json-schema-to-ts";
+import { createClient } from "redis";
+import { isArrayOf } from "@8hobbies/utils";
 
 interface QueryStringSchemaInterface {
   num_of_commits: number;
@@ -31,6 +33,21 @@ interface ParamsSchemaInterface {
   repository: string;
   branch: string;
 }
+
+const cacheLifeSpan = parseInt(
+  process.env.CACHE_LIFE_SPAN ?? (60 * 60 * 3).toString(),
+); // 3 hours default cache life
+const redisClient = createClient({
+  /* v8 ignore start */
+  url: process.env.CACHE_CONNECTION_URL ?? "redis://localhost:6379",
+  /* v8 ignore end */
+});
+redisClient.on("error", (err) => {
+  /* v8 ignore start */
+  console.log("Redis Client Error", err);
+  /* v8 ignore end */
+});
+await redisClient.connect();
 
 // eslint-disable-next-line @typescript-eslint/require-await
 const plugin: FastifyPluginAsyncJsonSchemaToTs = async function (fastify, _) {
@@ -80,8 +97,9 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async function (fastify, _) {
                   required: ["commit_hash", "retrieval_time"],
                 },
               },
-              // The last time commits were retrieved for this repo/branch
-              last_commit_retrieval_time: { type: "integer", minimum: 1 },
+              // The last timestamp commits were retrieved for this repo/branch.
+              // Unit is milliseconds.
+              last_commit_retrieval_time: { type: "integer", minimum: 0 },
             },
           },
           404: {
@@ -102,6 +120,45 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async function (fastify, _) {
     async (request, reply) => {
       const { repository, branch } = request.params;
       const { num_of_commits } = request.query;
+      const cacheKey = JSON.stringify([repository, branch]);
+
+      /** Gets the cached result. Returns null if no useful cache is available.
+       */
+      async function getCachedResult(): Promise<object | null> {
+        const cachedResult = await redisClient.get(cacheKey);
+        if (cachedResult === null) {
+          return null;
+        }
+
+        const cachedResultJson: unknown = JSON.parse(cachedResult);
+        if (
+          typeof cachedResultJson !== "object" ||
+          cachedResultJson === null ||
+          !("commits" in cachedResultJson) ||
+          !isArrayOf(cachedResultJson.commits, "object")
+        ) {
+          console.error(`Unknown cache result: ${cachedResult}`);
+          return null;
+        }
+
+        // TODO: Optimize this part because a request can always indicates a
+        // large number of commits, which results in no cache hit.
+        if (num_of_commits > cachedResultJson.commits.length) {
+          // We need more commits.
+          return null;
+        }
+
+        // Reset the cache life span.
+        await redisClient.expire(cacheKey, cacheLifeSpan, "GT");
+        return cachedResultJson;
+      }
+
+      const cachedResult = await getCachedResult();
+      if (cachedResult !== null) {
+        // cache hit
+        reply.code(200).send(cachedResult);
+        return;
+      }
 
       const queryResult = await fastify.prisma.branches.findFirst({
         where: {
@@ -131,12 +188,17 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async function (fastify, _) {
         return;
       }
 
-      reply.code(200).send({
+      const responsePayload = {
         commits: queryResult.commits.map((commit) => ({
           ...commit,
           retrieval_time: commit.retrieval_time.getTime(),
         })),
-        last_commit_retrieval_time: queryResult.last_commit_retrieval_time,
+        last_commit_retrieval_time:
+          queryResult.last_commit_retrieval_time.getTime(),
+      };
+      reply.code(200).send(responsePayload);
+      await redisClient.set(cacheKey, JSON.stringify(responsePayload), {
+        EX: cacheLifeSpan,
       });
     },
   );

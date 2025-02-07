@@ -30,6 +30,7 @@ RUN apk add --no-cache git
 WORKDIR /updater
 
 ENV DATABASE_CONNECTION_STRING=postgresql://commitrack:commitrack@db:5432/commitrack
+ENV CACHE_CONNECTION_URL=redis://cache:6379
 
 # Need to run this before npm ci because prisma's postinstall script will read
 # this directory.

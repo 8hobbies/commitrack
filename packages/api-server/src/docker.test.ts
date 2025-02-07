@@ -110,23 +110,28 @@ describe("Brief test directly for a running Docker container", () => {
       expect(newResponse.status).toBe(201); // sanity check
 
       // List commits.
-      const response = await fetch(
-        `${instanceAddress}/list-commits/${encodeURIComponent(repository)}/${branch}?num_of_commits=1`,
-      );
+      async function listCommits(): Promise<void> {
+        const response = await fetch(
+          `${instanceAddress}/list-commits/${encodeURIComponent(repository)}/${branch}?num_of_commits=1`,
+        );
 
-      expect(response.status).toBe(200);
-      expect(await response.json()).toMatchObject({
-        commits: [
-          {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            commit_hash: expect.any(String),
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            retrieval_time: expect.any(Number),
-          },
-        ],
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        last_commit_retrieval_time: expect.any(Number),
-      });
+        expect(response.status).toBe(200);
+        expect(await response.json()).toMatchObject({
+          commits: [
+            {
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+              commit_hash: expect.any(String),
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+              retrieval_time: expect.any(Number),
+            },
+          ],
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          last_commit_retrieval_time: expect.any(Number),
+        });
+      }
+
+      await listCommits(); // uncached
+      await listCommits(); // cached
     });
 
     test("Return 400 with invalid path components", async () => {
