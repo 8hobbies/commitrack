@@ -23,7 +23,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      DATABASE_CONNECTION_STRING: postgresql://commitrack:commitrack@db:5432/commitrack
+      DATABASE_CONNECTION_URL: postgresql://commitrack:commitrack@db:5432/commitrack
       CACHE_CONNECTION_URL: redis://cache:6379
     depends_on:
       db:

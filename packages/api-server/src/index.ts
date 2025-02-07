@@ -23,8 +23,8 @@ import routeListCommits from "./route_list_commits.js";
 import routeNew from "./route_new.js";
 
 /* v8 ignore start */
-if (process.env.DATABASE_CONNECTION_STRING === undefined) {
-  throw new Error("DATABASE_CONNECTION_STRING is required");
+if (process.env.DATABASE_CONNECTION_URL === undefined) {
+  throw new Error("DATABASE_CONNECTION_URL is required");
 }
 /* v8 ignore end */
 
