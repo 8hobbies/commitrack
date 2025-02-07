@@ -82,6 +82,9 @@ async function updateSingleBranchRepoLastCommitRetrievalTime(
 }
 
 async function listSingleBranchRepoCommits(): Promise<object> {
+  // Clear the cache to ensure the latest data is retrieved.
+  await redisClient.flushAll(RedisFlushModes.SYNC);
+
   const response = await fetch(
     `${apiServerUrl}/list-commits/${encodeURIComponent(singleBranchRepository)}/${singleBranchRepoBranch}?num_of_commits=2`,
     {

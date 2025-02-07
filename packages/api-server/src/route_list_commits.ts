@@ -119,7 +119,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async function (fastify, _) {
     } as const,
     async (request, reply) => {
       const { repository, branch } = request.params;
-      const { num_of_commits } = request.query;
+      const { num_of_commits: numOfCommits } = request.query;
       const cacheKey = JSON.stringify([repository, branch]);
 
       /** Gets the cached result. Returns null if no useful cache is available.
@@ -134,23 +134,40 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async function (fastify, _) {
         if (
           typeof cachedResultJson !== "object" ||
           cachedResultJson === null ||
-          !("commits" in cachedResultJson) ||
-          !isArrayOf(cachedResultJson.commits, "object")
+          !("payload" in cachedResultJson) ||
+          !("numOfCommits" in cachedResultJson) ||
+          typeof cachedResultJson.numOfCommits !== "number"
         ) {
-          console.error(`Unknown cache result: ${cachedResult}`);
+          console.error(
+            `Unknown cache result: ${JSON.stringify(cachedResult)}`,
+          );
           return null;
         }
 
-        // TODO: Optimize this part because a request can always indicates a
-        // large number of commits, which results in no cache hit.
-        if (num_of_commits > cachedResultJson.commits.length) {
+        const cachedPayload = cachedResultJson.payload;
+
+        if (
+          typeof cachedPayload !== "object" ||
+          cachedPayload === null ||
+          !("commits" in cachedPayload) ||
+          !isArrayOf(cachedPayload.commits, "object")
+        ) {
+          console.error(
+            `Unknown cache payload: ${JSON.stringify(cachedPayload)}`,
+          );
+          return null;
+        }
+
+        if (numOfCommits > cachedResultJson.numOfCommits) {
           // We need more commits.
           return null;
         }
 
-        // Reset the cache life span.
+        // Reset the cache life span and truncate the result to numOfCommits
+        // elements.
         await redisClient.expire(cacheKey, cacheLifeSpan, "GT");
-        return cachedResultJson;
+        cachedPayload.commits.slice(0, numOfCommits - 1);
+        return cachedPayload;
       }
 
       const cachedResult = await getCachedResult();
@@ -171,7 +188,7 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async function (fastify, _) {
               commit_hash: true,
               retrieval_time: true,
             },
-            take: num_of_commits,
+            take: numOfCommits,
             orderBy: {
               retrieval_time: "desc",
             },
@@ -197,9 +214,13 @@ const plugin: FastifyPluginAsyncJsonSchemaToTs = async function (fastify, _) {
           queryResult.last_commit_retrieval_time.getTime(),
       };
       reply.code(200).send(responsePayload);
-      await redisClient.set(cacheKey, JSON.stringify(responsePayload), {
-        EX: cacheLifeSpan,
-      });
+      await redisClient.set(
+        cacheKey,
+        JSON.stringify({ numOfCommits, payload: responsePayload }),
+        {
+          EX: cacheLifeSpan,
+        },
+      );
     },
   );
 };
