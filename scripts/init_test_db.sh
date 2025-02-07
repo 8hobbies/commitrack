@@ -22,5 +22,5 @@
 set -x
 
 DOCKER_CMD=${DOCKER_CMD:-podman}
-export DATABASE_CONNECTION_STRING=postgresql://commitrack:commitrack@localhost:5432/commitrack
+export DATABASE_CONNECTION_URL=postgresql://commitrack:commitrack@localhost:5432/commitrack
 npx prisma migrate dev || { echo "Failed to migrate" ; exit 1; }

@@ -22,5 +22,5 @@ set -e -x
 ./scripts/init_test_db.sh
 
 pushd packages/api-server
-DATABASE_CONNECTION_STRING=postgresql://commitrack:commitrack@localhost:5432/commitrack vitest --run docker.test.ts
+DATABASE_CONNECTION_URL=postgresql://commitrack:commitrack@localhost:5432/commitrack vitest --run docker.test.ts
 popd

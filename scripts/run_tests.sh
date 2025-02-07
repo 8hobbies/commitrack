@@ -33,7 +33,7 @@ timeout 10s bash -c "until ${DOCKER_CMD} exec commitrack-test-repos git ls-remot
 
 
 ./scripts/init_test_db.sh || { echo "Failed to initialize db" ; exit 1 ; }
-export DATABASE_CONNECTION_STRING=postgresql://commitrack:commitrack@localhost:5432/commitrack
+export DATABASE_CONNECTION_URL=postgresql://commitrack:commitrack@localhost:5432/commitrack
 export CACHE_CONNECTION_URL=redis://localhost:6379
 
 pushd packages/api-server
