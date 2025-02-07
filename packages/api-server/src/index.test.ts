@@ -16,12 +16,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { RedisFlushModes, createClient } from "redis";
 import { branchMaxLength, repoUrlMaxLength } from "./common.ts";
 import { PrismaClient } from "@prisma/client";
 import fastify from "./index.ts";
 import { singleBranchTrunkFirstCommitHash } from "../../common/src/test_utils.ts";
 
 const prisma = new PrismaClient();
+const redisClient = createClient({
+  url: process.env.CACHE_CONNECTION_URL,
+});
+redisClient.on("error", (err) => {
+  console.log("Redis Client Error", err);
+});
+await redisClient.connect();
 
 describe("/health", () => {
   test("Return 200", async () => {
@@ -38,6 +46,7 @@ async function cleanUpTest(): Promise<void> {
   vi.clearAllMocks();
   await prisma.$queryRaw`delete from commits`;
   await prisma.$queryRaw`delete from branches`;
+  await redisClient.flushAll(RedisFlushModes.SYNC);
 }
 
 describe("/new", () => {
@@ -209,25 +218,30 @@ describe("/list-commits", () => {
 
     vi.useRealTimers();
 
-    // List commits.
-    const response = await fastify.inject({
-      method: "GET",
-      query: {
-        num_of_commits: "1",
-      },
-      url: `/list-commits/${encodeURIComponent(repository)}/${branch}`,
-    });
-
-    expect(response.statusCode).toBe(200);
-    expect(JSON.parse(response.body)).toStrictEqual({
-      commits: [
-        {
-          commit_hash: singleBranchTrunkFirstCommitHash,
-          retrieval_time: expectedRetrievalTime,
+    async function checkResponse(): Promise<void> {
+      const response = await fastify.inject({
+        method: "GET",
+        query: {
+          num_of_commits: "1",
         },
-      ],
-      last_commit_retrieval_time: expectedRetrievalTime,
-    });
+        url: `/list-commits/${encodeURIComponent(repository)}/${branch}`,
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(JSON.parse(response.body)).toStrictEqual({
+        commits: [
+          {
+            commit_hash: singleBranchTrunkFirstCommitHash,
+            retrieval_time: expectedRetrievalTime,
+          },
+        ],
+        last_commit_retrieval_time: expectedRetrievalTime,
+      });
+    }
+
+    // List commits twice: First time uncached, second time cached.
+    await checkResponse();
+    await checkResponse();
   });
 
   for (const [name, components] of [

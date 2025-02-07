@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { RedisFlushModes, createClient } from "redis";
 import {
   restoreAllTestRepos,
   singleBranchTrunkSecondCommitHash,
@@ -31,11 +32,20 @@ const prisma = new PrismaClient();
 const singleBranchRepository = "git://test-repos/repos/single-branch" as const;
 const singleBranchRepoBranch = "trunk" as const;
 
+const redisClient = createClient({
+  url: process.env.CACHE_CONNECTION_URL,
+});
+redisClient.on("error", (err) => {
+  console.log("Redis Client Error", err);
+});
+await redisClient.connect();
+
 /** Clean up for all tests. */
 async function cleanUpTest(): Promise<void> {
   vi.clearAllMocks();
   await prisma.$queryRaw`delete from commits`;
   await prisma.$queryRaw`delete from branches`;
+  await redisClient.flushAll(RedisFlushModes.SYNC);
 }
 
 /** Add the single branch repo to the database. */
