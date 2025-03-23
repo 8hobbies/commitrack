@@ -11,7 +11,8 @@
     "build": "npm run compile",
     "build_container_img": "${DOCKER_CMD:-podman} build . -f Dockerfile.test-repos -t localhost/commitrack-test-repos",
     "format": "eslint --fix src/*.ts *.mjs && prettier . --write",
-    "compile": "tsc -p tsconfig.prod.json"
+    "compile": "tsc -p tsconfig.prod.json",
+    "generate_prisma": "echo No need to generate"
   },
   "devDependencies": {
     "@8hobbies/eslint-conf-baseline": "6.0.0",

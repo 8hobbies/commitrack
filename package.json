@@ -20,7 +20,7 @@
     "compile": "tsc -p tsconfig.json && tsx for_each_package.ts run compile",
     "dev": "npm run build && npm run start_test_containers && ./scripts/init_test_db.sh && node dist/api-server/index.js",
     "scan_security": "trivy fs --output fs.sarif . ; npm run build_container_img && trivy image --output image.sarif localhost/commitrack-api-server",
-    "postinstall": "tsx for_each_package.ts install"
+    "postinstall": "tsx for_each_package.ts install && tsx for_each_package.ts run generate_prisma"
   },
   "devDependencies": {
     "@8hobbies/eslint-conf-baseline": "6.0.0",

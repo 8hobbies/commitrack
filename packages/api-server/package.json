@@ -12,7 +12,8 @@
     "build": "npm run compile && cp -r prisma/schema.prisma dist/",
     "build_container_img": "${DOCKER_CMD:-podman} build . --build-context root=../../ -t localhost/commitrack-api-server",
     "format": "eslint --fix *.ts src/*.ts *.mjs && prettier . --write",
-    "compile": "tsc -p tsconfig.prod.json && tsc -p tsconfig.test.json"
+    "compile": "tsc -p tsconfig.prod.json && tsc -p tsconfig.test.json",
+    "generate_prisma": "prisma generate"
   },
   "devDependencies": {
     "@8hobbies/eslint-conf-baseline": "6.0.0",
