@@ -33,7 +33,7 @@
     "@8hobbies/utils": "4.2.0",
     "@fastify/type-provider-json-schema-to-ts": "5.0.0",
     "@prisma/client": "6.5.0",
-    "fastify": "5.2.2",
+    "fastify": "5.3.2",
     "fastify-plugin": "5.0.1",
     "redis": "4.7.0"
   }
