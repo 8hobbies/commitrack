@@ -55,13 +55,13 @@ jobs:
         continue-on-error: true
 
       - name: Upload Trivy fs scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3.28.17
+        uses: github/codeql-action/upload-sarif@v3.28.18
         with:
           category: "trivy-fs"
           sarif_file: "fs.sarif"
 
       - name: Upload Trivy image scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3.28.17
+        uses: github/codeql-action/upload-sarif@v3.28.18
         with:
           category: "trivy-image"
           sarif_file: "image.sarif"
