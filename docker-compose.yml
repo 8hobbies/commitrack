@@ -43,7 +43,7 @@ services:
       - commitrack
 
   db:
-    image: docker.io/postgres:17.5-alpine3.21@sha256:741cad88af2b5501ab3cc7aa4e834e50647dabc5af57b5297c9e480b99f3ab43
+    image: docker.io/postgres:17.5-alpine3.21@sha256:667a474ccd6764e3e439d3eea7a2662f74e2b92171a96628a75a4209420c9872
     container_name: commitrack-db
     ports:
       - "5432:5432"
@@ -61,7 +61,7 @@ services:
       - commitrack
 
   cache:
-    image: docker.io/redis:8.0.2-bookworm@sha256:dbf3e4b6ad3ece9c733282ff3f16942ed754fdc4ea12332154f30a9a9b88c3af
+    image: docker.io/redis:8.0.2-bookworm@sha256:1b835e5a8d5db58e8b718850bf43a68ef5a576fc68301fd08a789b20b4eecb61
     container_name: commitrack-cache
     ports:
       - "6379:6379"
