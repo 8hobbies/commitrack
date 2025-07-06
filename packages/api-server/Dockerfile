@@ -27,7 +27,7 @@ COPY --from=root packages/common/ /common
 RUN npm install -g npm && npm ci && npm run build && rm dist/*.tsbuildinfo
 
 # Production image --------------
-FROM docker.io/node:22.16.0-bookworm-slim@sha256:048ed02c5fd52e86fda6fbd2f6a76cf0d4492fd6c6fee9e2c463ed5108da0e34 AS runner
+FROM docker.io/node:22.17.0-bookworm-slim@sha256:b2fa526a10dad3c5ab4b3779eca81607ed05a96160ef5497c36cd4ebed68803d AS runner
 WORKDIR /app
 
 LABEL org.opencontainers.image.authors="8 Hobbies, LLC"
