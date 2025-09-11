@@ -61,7 +61,7 @@ services:
       - commitrack
 
   cache:
-    image: docker.io/redis:8.0.3-bookworm@sha256:30abfcce7d0527dceb081dfa17cea0a6c2c315bf5a4ec7b2799118e852fdd553
+    image: docker.io/redis:8.2.0-bookworm@sha256:e7d6b261beaa22b1dc001f438b677f1c691ac7805607d8979bae65fe0615c2e6
     container_name: commitrack-cache
     ports:
       - "6379:6379"
