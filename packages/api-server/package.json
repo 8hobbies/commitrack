@@ -25,7 +25,7 @@
     "globals": "16.4.0",
     "prettier": "3.6.2",
     "prisma": "6.16.2",
-    "typescript": "5.8.3",
+    "typescript": "5.9.2",
     "typescript-eslint": "8.44.0",
     "vitest": "3.2.4"
   },
@@ -33,7 +33,7 @@
     "@8hobbies/utils": "4.2.0",
     "@fastify/type-provider-json-schema-to-ts": "5.0.0",
     "@prisma/client": "6.16.2",
-    "fastify": "5.4.0",
+    "fastify": "5.6.0",
     "fastify-plugin": "5.0.1",
     "redis": "4.7.1"
   }
