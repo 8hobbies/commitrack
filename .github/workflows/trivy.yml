@@ -42,7 +42,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v6.0.0
         with:
-          node-version: 22.20.0
+          node-version: 22.21.0
           cache: "npm"
 
       - name: Install npm dependencies
@@ -55,13 +55,13 @@ jobs:
         continue-on-error: true
 
       - name: Upload Trivy fs scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v4.30.9
+        uses: github/codeql-action/upload-sarif@v4.31.0
         with:
           category: "trivy-fs"
           sarif_file: "fs.sarif"
 
       - name: Upload Trivy image scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v4.30.9
+        uses: github/codeql-action/upload-sarif@v4.31.0
         with:
           category: "trivy-image"
           sarif_file: "image.sarif"
