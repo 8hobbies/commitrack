@@ -34,7 +34,7 @@ jobs:
       security-events: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5.0.1
+        uses: actions/checkout@v6.0.0
 
       - name: Install Trivy
         uses: aquasecurity/setup-trivy@v0.2.4
