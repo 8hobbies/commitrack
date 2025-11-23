@@ -19,21 +19,21 @@
     "@8hobbies/eslint-conf-baseline": "6.0.0",
     "@types/eslint": "9.6.1",
     "@types/jest": "30.0.0",
-    "@types/node": "22.18.11",
+    "@types/node": "22.19.1",
     "@vitest/coverage-v8": "3.2.4",
-    "eslint": "9.38.0",
-    "globals": "16.4.0",
+    "eslint": "9.39.1",
+    "globals": "16.5.0",
     "prettier": "3.6.2",
-    "prisma": "6.17.1",
+    "prisma": "6.19.0",
     "typescript": "5.9.3",
-    "typescript-eslint": "8.46.1",
+    "typescript-eslint": "8.46.4",
     "vitest": "3.2.4"
   },
   "dependencies": {
     "@8hobbies/utils": "4.2.0",
     "@fastify/type-provider-json-schema-to-ts": "5.0.0",
-    "@prisma/client": "6.17.1",
-    "fastify": "5.6.1",
+    "@prisma/client": "6.19.0",
+    "fastify": "5.6.2",
     "fastify-plugin": "5.1.0",
     "redis": "4.7.1"
   }
