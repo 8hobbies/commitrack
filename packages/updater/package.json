@@ -26,13 +26,13 @@
     "eslint": "9.39.1",
     "globals": "16.5.0",
     "prettier": "3.7.4",
-    "prisma": "6.19.0",
+    "prisma": "7.1.0",
     "typescript": "5.9.3",
     "typescript-eslint": "8.48.1",
     "vitest": "3.2.4",
     "redis": "4.7.1"
   },
   "dependencies": {
-    "@prisma/client": "6.19.0"
+    "@prisma/client": "7.1.0"
   }
 }
