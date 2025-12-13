@@ -30,7 +30,7 @@
     "typescript": "5.9.3",
     "typescript-eslint": "8.48.1",
     "vitest": "3.2.4",
-    "redis": "4.7.1"
+    "redis": "5.10.0"
   },
   "dependencies": {
     "@prisma/client": "6.19.0"
